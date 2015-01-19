@@ -6,7 +6,7 @@ namespace CR.MessageDispatch.Core
 {
     public class MessageHandlerRegistry<TKey> : IMessageHandlerRegistration<TKey>, IMessageHandlerLookup<TKey>
     {
-        private Dictionary<TKey, List<object>> _eventHandlers;
+        private Dictionary<TKey, List<object>> _eventHandlers = new Dictionary<TKey,List<object>>();
 
         public void Add(TKey messageType, object handler)
         {

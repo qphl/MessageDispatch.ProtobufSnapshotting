@@ -11,7 +11,7 @@
     <iconUrl>https://raw.githubusercontent.com/cognisant/cr-message-dispatch/master/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A basic library for dispatching events to handlers</description>
-    <releaseNotes>Initial Version</releaseNotes>
+    <releaseNotes>Fix for broken handler registration</releaseNotes>
     <copyright>Copyright 2015</copyright>
   </metadata>
 </package>
