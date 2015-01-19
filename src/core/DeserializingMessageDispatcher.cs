@@ -8,7 +8,7 @@ namespace core
 
         protected IMessageHandlerLookup<TLookupKey> Handlers;
 
-        protected abstract TLookupKey GetMessageType(TRaw rawMessage);
+        protected abstract bool TryGetMessageType(TRaw rawMessage, out TLookupKey type);
         protected abstract bool TryDeserialize(TLookupKey messageType, TRaw rawMessage, out object deserialized);
 
         protected DeserializingMessageDispatcher(IMessageHandlerLookup<TLookupKey> handlers)
@@ -19,7 +19,11 @@ namespace core
         public void Dispatch(TRaw message)
         {
             object deserialized;
-            var type = GetMessageType(message);
+            var type = default(TLookupKey);
+
+            if (!TryGetMessageType(message, out type))
+                return;
+
             var handlers = Handlers.HandlersForMessageType(type);
             
             if (!handlers.Any()) return;

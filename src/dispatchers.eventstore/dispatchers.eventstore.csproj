@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6D9F6DA0-5B47-497A-94CA-EBDB1DEE45B1}</ProjectGuid>
+    <ProjectGuid>{FEFC805A-DC08-4368-B42B-3DC87248E410}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>core</RootNamespace>
-    <AssemblyName>core</AssemblyName>
+    <RootNamespace>dispatchers.eventstore</RootNamespace>
+    <AssemblyName>dispatchers.eventstore</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,6 +30,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EventStore.ClientAPI">
+      <HintPath>..\packages\EventStore.Client.3.0.1\lib\net40\EventStore.ClientAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -39,15 +45,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DeserializingMessageDispatcher.cs" />
-    <Compile Include="RawMessageDispatcher.cs" />
-    <Compile Include="IDispatcher.cs" />
-    <Compile Include="IConsume.cs" />
-    <Compile Include="IMessageHandlerLookup.cs" />
-    <Compile Include="IMessageHandlerRegistration.cs" />
-    <Compile Include="MessageHandlerRegistry.cs" />
-    <Compile Include="MultiplexingDispatcher.cs" />
+    <Compile Include="EventStoreAggregateEventDispatcher.cs" />
+    <Compile Include="EventStoreJObjectDispatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\core\core.csproj">
+      <Project>{6D9F6DA0-5B47-497A-94CA-EBDB1DEE45B1}</Project>
+      <Name>core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
