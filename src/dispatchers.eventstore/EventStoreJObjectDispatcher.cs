@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using core;
 using EventStore.ClientAPI;
 using Newtonsoft.Json.Linq;
@@ -19,8 +20,20 @@ namespace dispatchers.eventstore
 
         protected override bool TryDeserialize(string messageType, ResolvedEvent rawMessage, out object deserialized)
         {
-            deserialized = JObject.Parse(Encoding.UTF8.GetString(rawMessage.Event.Data));
-            return true;
+            deserialized = null;
+
+            try
+            {
+                if (!rawMessage.Event.IsJson)
+                    return false;
+
+                deserialized = JObject.Parse(Encoding.UTF8.GetString(rawMessage.Event.Data)); 
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }

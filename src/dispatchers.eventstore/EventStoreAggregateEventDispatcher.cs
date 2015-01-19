@@ -10,6 +10,9 @@ using Newtonsoft.Json.Linq;
 
 namespace dispatchers.eventstore
 {
+    /// <summary>
+    /// Deserializing dispatcher for events produced by CR.AggregateRepository
+    /// </summary>
     public class EventStoreAggregateEventDispatcher : DeserializingMessageDispatcher<ResolvedEvent,Type>
     {
         public EventStoreAggregateEventDispatcher(IMessageHandlerLookup<Type> handlers) : base(handlers)
@@ -20,32 +23,20 @@ namespace dispatchers.eventstore
         {
             type = null;
 
+            //optimization: don't even bother trying to deserialize metadata for system events
             if (rawMessage.Event.EventType.StartsWith("$"))
                 return false;
 
-            IDictionary<string, JToken> metadata;
             try
             {
-                metadata = JObject.Parse(Encoding.UTF8.GetString(rawMessage.Event.Metadata));
-            }
-            catch (JsonReaderException)
-            {
-                return false;
-            }
-
-            if (!metadata.ContainsKey("ClrType"))
-                return false;
-
-            try
-            {
+                IDictionary<string, JToken> metadata = JObject.Parse(Encoding.UTF8.GetString(rawMessage.Event.Metadata));
                 type = Type.GetType((string)metadata["ClrType"], true);
+                return true;
             }
-            catch (Exception ex) //TODO be more specific here
+            catch (Exception)
             {
                 return false;
             }
-
-            return true;
         }
 
         protected override bool TryDeserialize(Type messageType, ResolvedEvent rawMessage, out object deserialized)
@@ -58,7 +49,7 @@ namespace dispatchers.eventstore
                 deserialized = JsonConvert.DeserializeObject(jsonString, messageType);
                 return deserialized != null;
             }
-            catch (JsonReaderException ex)
+            catch (Exception)
             {
                 return false;
             }

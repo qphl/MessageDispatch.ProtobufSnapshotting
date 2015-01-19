@@ -21,8 +21,7 @@ namespace core
             object deserialized;
             var type = default(TLookupKey);
 
-            if (!TryGetMessageType(message, out type))
-                return;
+            if (!TryGetMessageType(message, out type)) return;
 
             var handlers = Handlers.HandlersForMessageType(type);
             
