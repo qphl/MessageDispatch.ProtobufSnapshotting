@@ -24,9 +24,6 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
             try
             {
-                if (!rawMessage.Event.IsJson)
-                    return false;
-
                 deserialized = JObject.Parse(Encoding.UTF8.GetString(rawMessage.Event.Data)); 
                 return true;
             }

@@ -28,10 +28,11 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             try
             {
                 IDictionary<string, JToken> metadata = JObject.Parse(Encoding.UTF8.GetString(rawMessage.Event.Metadata));
+                var typeName = (string) metadata["ClrType"];
                 type = Type.GetType((string)metadata["ClrType"], true);
                 return true;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return false;
             }

@@ -31,7 +31,7 @@ namespace CR.MessageDispatch.Core
 
             foreach (var handler in handlers)
             {
-                ((dynamic) handler).handle((dynamic) message);
+                ((dynamic) handler).Handle((dynamic) deserialized);
             }
         }
     }
