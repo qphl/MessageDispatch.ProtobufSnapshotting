@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace core
+namespace CR.MessageDispatch.Core
 {
     public interface IMessageHandlerRegistration<in TKey>
     {

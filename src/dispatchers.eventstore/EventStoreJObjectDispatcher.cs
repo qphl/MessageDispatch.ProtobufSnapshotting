@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Text;
-using core;
+using CR.MessageDispatch.Core;
 using EventStore.ClientAPI;
 using Newtonsoft.Json.Linq;
 
-namespace dispatchers.eventstore
+namespace CR.MessageDispatch.Dispatchers.EventStore
 {
     public class EventStoreJObjectDispatcher : DeserializingMessageDispatcher<ResolvedEvent, string>
     {

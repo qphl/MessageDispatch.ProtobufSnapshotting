@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("dispatchers.eventstore")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("CR MessageDispatch Event Store Dispatchers")]
+[assembly: AssemblyDescription("Dispatchers for ResolvedEvent and an Event Store subscriber")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("dispatchers.eventstore")]
+[assembly: AssemblyCompany("Cognisant")]
+[assembly: AssemblyProduct("CR.MessageDispatch.Dispatchers.EventStore")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

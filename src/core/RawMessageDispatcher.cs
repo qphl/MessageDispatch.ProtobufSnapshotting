@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace core
+namespace CR.MessageDispatch.Core
 {
     /// <summary>
     /// A Deserializing message handler with no actual deserialization, just passes things through

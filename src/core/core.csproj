@@ -7,8 +7,8 @@
     <ProjectGuid>{6D9F6DA0-5B47-497A-94CA-EBDB1DEE45B1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>core</RootNamespace>
-    <AssemblyName>core</AssemblyName>
+    <RootNamespace>CR.MessageDispatch.Core</RootNamespace>
+    <AssemblyName>CR.MessageDispatch.Core</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

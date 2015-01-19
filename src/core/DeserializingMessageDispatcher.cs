@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace core
+namespace CR.MessageDispatch.Core
 {
     public abstract class DeserializingMessageDispatcher<TRaw, TLookupKey> : IDispatcher<TRaw>
     {

@@ -1,12 +1,12 @@
 ﻿using System;
-using core;
-using EventStore.ClientAPI;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using CR.MessageDispatch.Core;
+using EventStore.ClientAPI;
 using Microsoft.Win32.SafeHandles;
 
-namespace dispatchers.eventstore
+namespace CR.MessageDispatch.Dispatchers.EventStore
 {
     public class EventStoreSubscriber
     {

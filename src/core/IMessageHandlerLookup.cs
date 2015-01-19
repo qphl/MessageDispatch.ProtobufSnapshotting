@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace core
+namespace CR.MessageDispatch.Core
 {
     public interface IMessageHandlerLookup<in TKey>
     {

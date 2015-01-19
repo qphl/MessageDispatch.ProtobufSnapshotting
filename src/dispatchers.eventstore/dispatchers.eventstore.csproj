@@ -7,8 +7,8 @@
     <ProjectGuid>{FEFC805A-DC08-4368-B42B-3DC87248E410}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>dispatchers.eventstore</RootNamespace>
-    <AssemblyName>dispatchers.eventstore</AssemblyName>
+    <RootNamespace>CR.MessageDispatch.Dispatchers.EventStore</RootNamespace>
+    <AssemblyName>CR.MessageDispatch.Dispatchers.EventStore</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="EventStoreAggregateEventDispatcher.cs" />
     <Compile Include="EventStoreJObjectDispatcher.cs" />
+    <Compile Include="EventStoreSubscriber.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

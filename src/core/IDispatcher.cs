@@ -1,4 +1,4 @@
-﻿namespace core
+﻿namespace CR.MessageDispatch.Core
 {
     public interface IDispatcher<in TMessage>
     {
