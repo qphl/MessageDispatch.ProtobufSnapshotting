@@ -10,6 +10,38 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 {
     public class EventStoreSubscriber
     {
+        public class CatchupProgress
+        {
+            public string StreamName { get; private set; }
+            public int EventsProcessed { get; private set; }
+            public int StartPosition { get; private set; }
+            public int TotalEvents { get; private set; }
+
+            public decimal StreamPercentage
+            {
+                get { return (((decimal)StartPosition + EventsProcessed)/TotalEvents)*100; }
+            }
+
+            public decimal CatchupPercentage
+            {
+                get { return ((decimal)EventsProcessed/(TotalEvents - StartPosition))*100; }
+            }
+
+
+            public CatchupProgress(int eventsProcessed, int startPosition, string streamName, int totalEvents)
+            {
+                EventsProcessed = eventsProcessed;
+                StartPosition = startPosition;
+                StreamName = streamName;
+                TotalEvents = totalEvents;
+            }
+
+            public override string ToString()
+            {
+                return String.Format("[{0}] Stream Pos: {1:0.#}% ({2}/{3}), Caught up: {4:0.#}% ({5}/{6})", StreamName, StreamPercentage, EventsProcessed + StartPosition, TotalEvents, CatchupPercentage, EventsProcessed, TotalEvents - StartPosition);
+            }
+        }
+
         private bool _viewModelIsReady;
         private IEventStoreConnection _connection;
         private IDispatcher<ResolvedEvent> _dispatcher;
@@ -18,6 +50,18 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         private EventStoreCatchUpSubscription _subscription;
         private string _streamName;
         private readonly WriteThroughFileCheckpoint _checkpoint;
+
+        private int _eventsProcessed;
+
+        public CatchupProgress CatchUpPercentage
+        {
+            get
+            {
+                var totalEvents = _connection.ReadStreamEventsBackwardAsync(_streamName, StreamPosition.End, 1, true).Result.Events[0].OriginalEventNumber;
+                var start = _startingPosition ?? 0;
+                return new CatchupProgress(_eventsProcessed, start, _streamName, totalEvents);
+            }
+        }
 
         public bool ViewModelsReady { get { return _viewModelIsReady; } }
 
@@ -34,9 +78,6 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
             var initialCheckpointPosition = _checkpoint.Read();
 
-            Console.Write(initialCheckpointPosition);
-            Console.ReadLine();
-
             if (initialCheckpointPosition != -1)
                 startingPosition = (int)initialCheckpointPosition;
             
@@ -45,6 +86,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
         public void Init(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher, string streamName, int? startingPosition = null)
         {
+            _eventsProcessed = 0;
             _startingPosition = startingPosition;
             _dispatcher = dispatcher;
             _streamName = streamName;
@@ -53,7 +95,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
         public void Start()
         {
-            _subscription = _connection.SubscribeToStreamFrom(_streamName, _startingPosition.HasValue ? (int?)_startingPosition.Value : null, true, EventAppeared, LiveProcessingStarted, SubscriptionDropped, readBatchSize: 1500);
+            _subscription = _connection.SubscribeToStreamFrom(_streamName, _startingPosition.HasValue ? (int?)_startingPosition.Value : null, true, EventAppeared, LiveProcessingStarted, SubscriptionDropped, readBatchSize: 1024);
         }
 
         private void SubscriptionDropped(EventStoreCatchUpSubscription eventStoreCatchUpSubscription, SubscriptionDropReason subscriptionDropReason, Exception ex)
@@ -70,6 +112,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
         private void EventAppeared(EventStoreCatchUpSubscription eventStoreCatchUpSubscription, ResolvedEvent resolvedEvent)
         {
+            _eventsProcessed++;
             if (resolvedEvent.Event.EventType.StartsWith("$"))
                 return;
             try 

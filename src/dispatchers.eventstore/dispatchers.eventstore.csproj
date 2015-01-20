@@ -51,6 +51,7 @@
     <Compile Include="EventStoreJObjectDispatcher.cs" />
     <Compile Include="EventStoreSubscriber.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SimpleEventStoreDispatcher.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\core\core.csproj">
