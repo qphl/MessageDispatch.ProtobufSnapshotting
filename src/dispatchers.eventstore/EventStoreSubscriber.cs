@@ -34,6 +34,9 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
             var initialCheckpointPosition = _checkpoint.Read();
 
+            Console.Write(initialCheckpointPosition);
+            Console.ReadLine();
+
             if (initialCheckpointPosition != -1)
                 startingPosition = (int)initialCheckpointPosition;
             
@@ -50,7 +53,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
         public void Start()
         {
-            _subscription = _connection.SubscribeToStreamFrom(_streamName, _startingPosition.HasValue ? (int?)_startingPosition.Value : null, true, EventAppeared, LiveProcessingStarted, SubscriptionDropped);
+            _subscription = _connection.SubscribeToStreamFrom(_streamName, _startingPosition.HasValue ? (int?)_startingPosition.Value : null, true, EventAppeared, LiveProcessingStarted, SubscriptionDropped, readBatchSize: 1500);
         }
 
         private void SubscriptionDropped(EventStoreCatchUpSubscription eventStoreCatchUpSubscription, SubscriptionDropReason subscriptionDropReason, Exception ex)
@@ -67,13 +70,15 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
         private void EventAppeared(EventStoreCatchUpSubscription eventStoreCatchUpSubscription, ResolvedEvent resolvedEvent)
         {
+            if (resolvedEvent.Event.EventType.StartsWith("$"))
+                return;
             try 
             { 
                 _dispatcher.Dispatch(resolvedEvent);
                 
                 if (_checkpoint == null) return;
 
-                _checkpoint.Write(resolvedEvent.Event.EventNumber);
+                _checkpoint.Write(resolvedEvent.OriginalEventNumber);
                 _checkpoint.Flush();
             }
             catch (Exception ex) 
