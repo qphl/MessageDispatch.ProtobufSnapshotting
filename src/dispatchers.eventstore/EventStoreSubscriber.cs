@@ -50,6 +50,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         private EventStoreCatchUpSubscription _subscription;
         private string _streamName;
         private readonly WriteThroughFileCheckpoint _checkpoint;
+        private int _catchupPageSize;
 
         private int _eventsProcessed;
 
@@ -65,13 +66,13 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
         public bool ViewModelsReady { get { return _viewModelIsReady; } }
 
-        public EventStoreSubscriber(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher, string streamName, int? startingPosition = null)
+        public EventStoreSubscriber(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher, string streamName,  int? startingPosition = null, int catchUpPageSize = 1024)
         {
             Init(connection, dispatcher, streamName, startingPosition);
         }
 
         public EventStoreSubscriber(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher,
-            string streamName, string checkpointFilePath)
+            string streamName, string checkpointFilePath, int catchupPageSize = 1024)
         {
             int? startingPosition = null;
             _checkpoint = new WriteThroughFileCheckpoint(checkpointFilePath, "lastProcessedPosition", false, -1);
@@ -84,18 +85,19 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             Init(connection, dispatcher, streamName, startingPosition);
         }
 
-        public void Init(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher, string streamName, int? startingPosition = null)
+        private void Init(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher, string streamName, int? startingPosition = null, int catchupPageSize = 1024)
         {
             _eventsProcessed = 0;
             _startingPosition = startingPosition;
             _dispatcher = dispatcher;
             _streamName = streamName;
             _connection = connection;
+            _catchupPageSize = catchupPageSize;
         }
 
         public void Start()
         {
-            _subscription = _connection.SubscribeToStreamFrom(_streamName, _startingPosition.HasValue ? (int?)_startingPosition.Value : null, true, EventAppeared, LiveProcessingStarted, SubscriptionDropped, readBatchSize: 1024);
+            _subscription = _connection.SubscribeToStreamFrom(_streamName, _startingPosition.HasValue ? (int?)_startingPosition.Value : null, true, EventAppeared, LiveProcessingStarted, SubscriptionDropped, readBatchSize: _catchupPageSize);
         }
 
         private void SubscriptionDropped(EventStoreCatchUpSubscription eventStoreCatchUpSubscription, SubscriptionDropReason subscriptionDropReason, Exception ex)
