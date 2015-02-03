@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -51,6 +52,8 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         private string _streamName;
         private readonly WriteThroughFileCheckpoint _checkpoint;
         private int _catchupPageSize;
+        private int _upperQueueBound;
+        private BlockingCollection<ResolvedEvent> _queue;
 
         private int _eventsProcessed;
 
@@ -66,13 +69,13 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
         public bool ViewModelsReady { get { return _viewModelIsReady; } }
 
-        public EventStoreSubscriber(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher, string streamName,  int? startingPosition = null, int catchUpPageSize = 1024)
+        public EventStoreSubscriber(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher, string streamName,  int? startingPosition = null, int catchUpPageSize = 1024, int upperQueueBound = 2048)
         {
-            Init(connection, dispatcher, streamName, startingPosition);
+            Init(connection, dispatcher, streamName, startingPosition, catchUpPageSize, upperQueueBound);
         }
 
         public EventStoreSubscriber(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher,
-            string streamName, string checkpointFilePath, int catchupPageSize = 1024)
+            string streamName, string checkpointFilePath, int catchupPageSize = 1024, int upperQueueBound = 2048)
         {
             int? startingPosition = null;
             _checkpoint = new WriteThroughFileCheckpoint(checkpointFilePath, "lastProcessedPosition", false, -1);
@@ -82,10 +85,10 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             if (initialCheckpointPosition != -1)
                 startingPosition = (int)initialCheckpointPosition;
             
-            Init(connection, dispatcher, streamName, startingPosition);
+            Init(connection, dispatcher, streamName, startingPosition,catchupPageSize, upperQueueBound);
         }
 
-        private void Init(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher, string streamName, int? startingPosition = null, int catchupPageSize = 1024)
+        private void Init(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher, string streamName, int? startingPosition = null, int catchupPageSize = 1024, int upperQueueBound = 2048)
         {
             _eventsProcessed = 0;
             _startingPosition = startingPosition;
@@ -93,11 +96,21 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             _streamName = streamName;
             _connection = connection;
             _catchupPageSize = catchupPageSize;
+            _queue = new BlockingCollection<ResolvedEvent>(upperQueueBound);
         }
 
         public void Start()
         {
             _subscription = _connection.SubscribeToStreamFrom(_streamName, _startingPosition.HasValue ? (int?)_startingPosition.Value : null, true, EventAppeared, LiveProcessingStarted, SubscriptionDropped, readBatchSize: _catchupPageSize);
+            Thread processor = new Thread(ProcessEvents);
+            processor.Start();
+        }
+
+        private void ProcessEvents()
+        {
+            foreach(var item in _queue.GetConsumingEnumerable()) {
+                ProcessEvent(item);
+            }
         }
 
         private void SubscriptionDropped(EventStoreCatchUpSubscription eventStoreCatchUpSubscription, SubscriptionDropReason subscriptionDropReason, Exception ex)
@@ -114,19 +127,24 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
         private void EventAppeared(EventStoreCatchUpSubscription eventStoreCatchUpSubscription, ResolvedEvent resolvedEvent)
         {
+            _queue.Add(resolvedEvent);
+        }
+
+        private void ProcessEvent(ResolvedEvent resolvedEvent)
+        {
             _eventsProcessed++;
             if (resolvedEvent.Event.EventType.StartsWith("$"))
                 return;
-            try 
-            { 
+            try
+            {
                 _dispatcher.Dispatch(resolvedEvent);
-                
+
                 if (_checkpoint == null) return;
 
                 _checkpoint.Write(resolvedEvent.OriginalEventNumber);
                 _checkpoint.Flush();
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 Console.WriteLine("{2} {3} - Error dispatching event {0}/{1}", resolvedEvent.Event.EventStreamId,
                     resolvedEvent.Event.EventNumber, DateTime.Now.ToShortDateString(),
