@@ -105,18 +105,22 @@ namespace CR.MessageDispatch.Dispatchers.Snapshotting.Protobuf
 
             var chunkCount = 0;
             var enumerator = itemEnumerable.GetEnumerator();
-            do
-            {
+            var didMoveNext = false;
+            
+            do {
                 using (var serializeStream = StreamForChunk(chunkCount, tempPath, FileMode.Create))
                 {
-                    while (serializeStream.Length <= ChunkSize && enumerator.MoveNext())
+                    while (serializeStream.Length <= ChunkSize)
                     {
+                        didMoveNext = enumerator.MoveNext();
+                        if (!didMoveNext) break;
+
                         Serializer.SerializeWithLengthPrefix(serializeStream,
                             new ItemWrapper() {Item = enumerator.Current}, PrefixStyle.Base128, 0);
                     }
                     chunkCount++;
                 }
-            } while (enumerator.MoveNext());
+            } while (didMoveNext);
             
             Directory.Move(tempPath, SnapshotBasePath + "/" + eventNumber);
         }
