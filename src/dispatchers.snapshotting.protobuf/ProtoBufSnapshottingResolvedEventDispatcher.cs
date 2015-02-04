@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using CR.MessageDispatch.Core;
 using EventStore.ClientAPI;
 using ProtoBuf;
 
-namespace dispatchers.snapshotting.protobuf
+namespace CR.MessageDispatch.Dispatchers.Snapshotting.Protobuf
 {
     public class ProtoBufSnapshottingResolvedEventDispatcher : ISnapshottingDispatcher<ResolvedEvent>
     {

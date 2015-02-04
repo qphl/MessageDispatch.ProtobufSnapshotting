@@ -7,8 +7,8 @@
     <ProjectGuid>{3AAA5484-AFAC-46A9-A49C-E737CBE1CD5B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>dispatchers.snapshotting.protobuf</RootNamespace>
-    <AssemblyName>dispatchers.snapshotting.protobuf</AssemblyName>
+    <RootNamespace>CR.MessageDispatch.Dispatchers.Snapshotting.Protobuf</RootNamespace>
+    <AssemblyName>CR.MessageDispatch.Dispatchers.Snapshotting.Protobuf</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
