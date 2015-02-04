@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{08DBD7
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dispatchers.snapshotting.protobuf", "dispatchers.snapshotting.protobuf\dispatchers.snapshotting.protobuf.csproj", "{3AAA5484-AFAC-46A9-A49C-E737CBE1CD5B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,6 +30,10 @@ Global
 		{FEFC805A-DC08-4368-B42B-3DC87248E410}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FEFC805A-DC08-4368-B42B-3DC87248E410}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FEFC805A-DC08-4368-B42B-3DC87248E410}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AAA5484-AFAC-46A9-A49C-E737CBE1CD5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AAA5484-AFAC-46A9-A49C-E737CBE1CD5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AAA5484-AFAC-46A9-A49C-E737CBE1CD5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AAA5484-AFAC-46A9-A49C-E737CBE1CD5B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

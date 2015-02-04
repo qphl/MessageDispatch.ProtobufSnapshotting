@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CR Message Dispatch Core")]
-[assembly: AssemblyDescription("Core interfaces for dispatching messages to handlers")]
+[assembly: AssemblyTitle("CR MessageDispatch Event Store Dispatchers")]
+[assembly: AssemblyDescription("An IDispatcher of ResolvedEvent which can write snapshots of application state in response to a CheckpointRequested event")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Cognisant")]
-[assembly: AssemblyProduct("CR.MessageDispatch.Core")]
+[assembly: AssemblyProduct("CR.MessageDispatch.Dispatchers.Snapshotting.Protobuf")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("0c759e7d-4599-4e65-abe1-7f7fbb7ddd20")]
+[assembly: Guid("22ca2a6c-008d-41fa-b70e-8cdc7d7c2cda")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.4.*")]
-[assembly: AssemblyFileVersion("1.0.4.*")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]

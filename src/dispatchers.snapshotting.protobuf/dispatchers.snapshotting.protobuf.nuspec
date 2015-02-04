@@ -1,0 +1,20 @@
+﻿<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Rich Knight,Jon Bradford</authors>
+    <owners>Rich Knight,Jon Bradford</owners>
+    <licenseUrl>https://raw.githubusercontent.com/cognisant/cr-message-dispatch/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/cognisant/cr-message-dispatch</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/cognisant/cr-message-dispatch/master/logo.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>An IDispatcher of ResolvedEvent which can write snapshots of application state in response to a CheckpointRequested event</description>
+    <releaseNotes>Initial Version</releaseNotes>
+    <copyright>Copyright 2015</copyright>
+    <dependencies>
+      <dependency id="CR.MessageDispatch.Core" version="1.0.4" />
+    </dependencies>
+  </metadata>
+</package>
