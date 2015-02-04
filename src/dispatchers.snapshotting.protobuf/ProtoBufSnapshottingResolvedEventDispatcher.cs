@@ -101,7 +101,6 @@ namespace CR.MessageDispatch.Dispatchers.Snapshotting.Protobuf
         {
             const string tempPath = SnapshotBasePath + TempDirectoryName;
             Directory.CreateDirectory(tempPath);
-
             var itemEnumerable = _stateProvider();
 
             var chunkCount = 0;
@@ -110,14 +109,14 @@ namespace CR.MessageDispatch.Dispatchers.Snapshotting.Protobuf
             {
                 using (var serializeStream = StreamForChunk(chunkCount, tempPath, FileMode.Create))
                 {
-                    while (serializeStream.Length <= ChunkSize || !enumerator.MoveNext())
+                    while (serializeStream.Length <= ChunkSize && enumerator.MoveNext())
                     {
                         Serializer.SerializeWithLengthPrefix(serializeStream,
                             new ItemWrapper() {Item = enumerator.Current}, PrefixStyle.Base128, 0);
                     }
                     chunkCount++;
                 }
-            } while (!enumerator.MoveNext());
+            } while (enumerator.MoveNext());
             
             Directory.Move(tempPath, SnapshotBasePath + "/" + eventNumber);
         }
