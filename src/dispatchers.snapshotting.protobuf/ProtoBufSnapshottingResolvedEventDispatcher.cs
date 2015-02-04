@@ -23,7 +23,7 @@ namespace CR.MessageDispatch.Dispatchers.Snapshotting.Protobuf
 
             //delete any temp directories on startup
             if (Directory.Exists(SnapshotBasePath + TempDirectoryName))
-                Directory.Delete(SnapshotBasePath + TempDirectoryName);
+                Directory.Delete(SnapshotBasePath + TempDirectoryName,true);
         }
 
         public IDispatcher<ResolvedEvent> InnerDispatcher { get; set; }
