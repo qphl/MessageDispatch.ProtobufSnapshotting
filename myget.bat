@@ -16,6 +16,10 @@ if not "%errorlevel%"=="0" goto failure
 cmd /c %nuget% pack "src\dispatchers.eventstore\dispatchers.eventstore.csproj" -symbols -o Build -p Configuration=%config%
 if not "%errorlevel%"=="0" goto failure
 
+cmd /c %nuget% pack "src\dispatchers.snapshotting.protobuf\dispatchers.snapshotting.protobuf.csproj" -symbols -o Build -p Configuration=%config%
+if not "%errorlevel%"=="0" goto failure
+
+
 :success
 exit 0
 
