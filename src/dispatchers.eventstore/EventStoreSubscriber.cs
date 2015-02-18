@@ -133,7 +133,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         private void ProcessEvent(ResolvedEvent resolvedEvent)
         {
             _eventsProcessed++;
-            if (resolvedEvent.Event.EventType.StartsWith("$"))
+            if (resolvedEvent.Event == null || resolvedEvent.Event.EventType.StartsWith("$"))
                 return;
             try
             {
