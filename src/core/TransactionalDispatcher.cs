@@ -7,7 +7,7 @@ using System.Transactions;
 
 namespace CR.MessageDispatch.Core
 {
-    class TransactionalDispatcher<TMessage>:IDispatcher<TMessage>
+    public class TransactionalDispatcher<TMessage>:IDispatcher<TMessage>
     {
         private readonly IDispatcher<TMessage> _dispatcher;
 
