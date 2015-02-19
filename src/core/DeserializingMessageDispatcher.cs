@@ -16,7 +16,7 @@ namespace CR.MessageDispatch.Core
             Handlers = handlers;
         }
 
-        public void Dispatch(TRaw message)
+        public virtual void Dispatch(TRaw message)
         {
             object deserialized;
             var type = default(TLookupKey);
