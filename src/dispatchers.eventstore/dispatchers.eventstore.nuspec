@@ -11,10 +11,10 @@
     <iconUrl>https://raw.githubusercontent.com/cognisant/cr-message-dispatch/master/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Event Store specific message dispatchers</description>
-    <releaseNotes>Fixed handling of null (deleted) events when they are delivered over the subscription</releaseNotes>
+    <releaseNotes>Added logging to event store subscriber</releaseNotes>
     <copyright>Copyright 2015</copyright>
     <dependencies>
-      <dependency id="CR.MessageDispatch.Core" version="1.0.3" />
+      <dependency id="CR.MessageDispatch.Core" version="1.0.7" />
     </dependencies>
   </metadata>
 </package>

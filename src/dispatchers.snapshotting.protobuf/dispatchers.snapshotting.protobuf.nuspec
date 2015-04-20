@@ -11,10 +11,10 @@
     <iconUrl>https://raw.githubusercontent.com/cognisant/cr-message-dispatch/master/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>An IDispatcher of ResolvedEvent which can write snapshots of application state in response to a CheckpointRequested event</description>
-    <releaseNotes>Initial Version</releaseNotes>
+    <releaseNotes>Updated version of core reference</releaseNotes>
     <copyright>Copyright 2015</copyright>
     <dependencies>
-      <dependency id="CR.MessageDispatch.Core" version="1.0.4" />
+      <dependency id="CR.MessageDispatch.Core" version="1.0.7" />
     </dependencies>
   </metadata>
 </package>
