@@ -2,10 +2,14 @@
 using System.Collections.Concurrent;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Threading;
+using System.Timers;
 using CR.MessageDispatch.Core;
 using EventStore.ClientAPI;
 using Microsoft.Win32.SafeHandles;
+using Timer = System.Timers.Timer;
 
 namespace CR.MessageDispatch.Dispatchers.EventStore
 {
@@ -52,7 +56,6 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         private string _streamName;
         private readonly WriteThroughFileCheckpoint _checkpoint;
         private int _catchupPageSize;
-        private int _upperQueueBound;
         private BlockingCollection<ResolvedEvent> _queue;
 
         private int _eventsProcessed;
@@ -68,10 +71,11 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         }
 
         public bool ViewModelsReady { get { return _viewModelIsReady; } }
+        private ILogger _logger;
 
         public EventStoreSubscriber(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher, string streamName,  int? startingPosition = null, int catchUpPageSize = 1024, int upperQueueBound = 2048)
         {
-            Init(connection, dispatcher, streamName, startingPosition, catchUpPageSize, upperQueueBound);
+            Init(connection, dispatcher, streamName, startingPosition, catchUpPageSize, upperQueueBound);    
         }
 
         public EventStoreSubscriber(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher,
@@ -90,6 +94,8 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
         private void Init(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher, string streamName, int? startingPosition = null, int catchupPageSize = 1024, int upperQueueBound = 2048)
         {
+            _liveProcessingTimer.Elapsed += LiveProcessingTimerOnElapsed;
+            _logger = connection.Settings.Log;
             _eventsProcessed = 0;
             _startingPosition = startingPosition;
             _dispatcher = dispatcher;
@@ -97,6 +103,11 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             _connection = connection;
             _catchupPageSize = catchupPageSize;
             _queue = new BlockingCollection<ResolvedEvent>(upperQueueBound);
+        }
+
+        private void LiveProcessingTimerOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
+        {
+            _logger.Error("Event Store Subscription has been down for 10 minutes");
         }
 
         public void Start()
@@ -113,15 +124,35 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             }
         }
 
+        private readonly Timer _liveProcessingTimer = new Timer(10 * 60 * 1000);
+
         private void SubscriptionDropped(EventStoreCatchUpSubscription eventStoreCatchUpSubscription, SubscriptionDropReason subscriptionDropReason, Exception ex)
         {
-            Console.WriteLine("{0} {1} - Subscription dropped", DateTime.Now.ToShortDateString(), DateTime.Now.ToShortTimeString());
+            if (ex != null)
+            {
+                _logger.Info(ex, "Event Store subscription dropped {0}", subscriptionDropReason.ToString());
+            }
+            else
+            {
+                _logger.Info("Event Store subscription dropped {0}", subscriptionDropReason.ToString());
+            }
             _viewModelIsReady = false;
+
+            lock (_liveProcessingTimer)
+            {
+                if(!_liveProcessingTimer.Enabled)
+                    _liveProcessingTimer.Start();
+            }
         }
-        
+
         private void LiveProcessingStarted(EventStoreCatchUpSubscription eventStoreCatchUpSubscription)
         {
-            Console.WriteLine("{0} {1} - Live processing started", DateTime.Now.ToShortDateString(), DateTime.Now.ToShortTimeString());
+            lock (_liveProcessingTimer)
+            {
+                _liveProcessingTimer.Stop();
+            }
+
+            _logger.Info("Live event processing started");
             _viewModelIsReady = true;
         }
 
@@ -146,10 +177,8 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             }
             catch (Exception ex)
             {
-                Console.WriteLine("{2} {3} - Error dispatching event {0}/{1}", resolvedEvent.Event.EventStreamId,
-                    resolvedEvent.Event.EventNumber, DateTime.Now.ToShortDateString(),
-                    DateTime.Now.ToShortTimeString());
-                Console.WriteLine(ex);
+                _logger.Error(ex, "Error dispatching event from Event Store subscriber ({0}/{1})", resolvedEvent.Event.EventStreamId,
+                    resolvedEvent.Event.EventNumber);
             }
         }
 
