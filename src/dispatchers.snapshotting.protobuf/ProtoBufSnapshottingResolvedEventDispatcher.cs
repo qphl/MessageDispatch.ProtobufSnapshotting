@@ -11,30 +11,38 @@ namespace CR.MessageDispatch.Dispatchers.Snapshotting.Protobuf
     public class ProtoBufSnapshottingResolvedEventDispatcher : ISnapshottingDispatcher<ResolvedEvent>
     {
         private const int ChunkSize = 52428800;
-        private const string SnapshotBasePath = "snapshots/";
+        private string _snapshotBasePath;
         private const string TempDirectoryName = "tmp/";
         private readonly Func<IEnumerable<Object>> _stateProvider;
 
-        public ProtoBufSnapshottingResolvedEventDispatcher(Func<IEnumerable<object>> stateProvider)
+        public ProtoBufSnapshottingResolvedEventDispatcher(Func<IEnumerable<object>> stateProvider, string snapshotBasePath, string snapshotVersion)
         {
+            
             _stateProvider = stateProvider;
-            if (!Directory.Exists(SnapshotBasePath))
-                Directory.CreateDirectory(SnapshotBasePath);
+            _snapshotBasePath = snapshotBasePath;
+
+            if (!Directory.Exists(_snapshotBasePath))
+                Directory.CreateDirectory(_snapshotBasePath);
+
+            _snapshotBasePath += "/"  + snapshotVersion + "/";
+
+            if (!Directory.Exists(_snapshotBasePath))
+                Directory.CreateDirectory(_snapshotBasePath);
 
             //delete any temp directories on startup
-            if (Directory.Exists(SnapshotBasePath + TempDirectoryName))
-                Directory.Delete(SnapshotBasePath + TempDirectoryName,true);
+            if (Directory.Exists(_snapshotBasePath + TempDirectoryName))
+                Directory.Delete(_snapshotBasePath + TempDirectoryName,true);
         }
 
         public IDispatcher<ResolvedEvent> InnerDispatcher { get; set; }
 
-        private static int GetHighestSnapshotPosition()
+        private int GetHighestSnapshotPosition()
         {
-            var directories = Directory.GetDirectories(SnapshotBasePath);
+            var directories = Directory.GetDirectories(_snapshotBasePath);
             if (!directories.Any())
                 return -1;
 
-            return directories.Select(d => int.Parse(d.Replace(SnapshotBasePath, ""))).Max();
+            return directories.Select(d => int.Parse(d.Replace(_snapshotBasePath, ""))).Max();
         }
 
         public int? LoadCheckpoint()
@@ -50,7 +58,7 @@ namespace CR.MessageDispatch.Dispatchers.Snapshotting.Protobuf
             if (pos == -1)
                 yield break;
 
-            var path = SnapshotBasePath + GetHighestSnapshotPosition() + "/";
+            var path = _snapshotBasePath + GetHighestSnapshotPosition() + "/";
 
             var chunksRead = 0;
 
@@ -99,7 +107,7 @@ namespace CR.MessageDispatch.Dispatchers.Snapshotting.Protobuf
 
         private void DoCheckpoint(int eventNumber)
         {
-            const string tempPath = SnapshotBasePath + TempDirectoryName;
+            string tempPath = _snapshotBasePath + TempDirectoryName;
             Directory.CreateDirectory(tempPath);
             var itemEnumerable = _stateProvider();
 
@@ -122,7 +130,7 @@ namespace CR.MessageDispatch.Dispatchers.Snapshotting.Protobuf
                 }
             } while (didMoveNext);
             
-            Directory.Move(tempPath, SnapshotBasePath + "/" + eventNumber);
+            Directory.Move(tempPath, _snapshotBasePath + "/" + eventNumber);
         }
 
         private FileStream StreamForChunk(int chunkNumber, string basePath, FileMode mode)
