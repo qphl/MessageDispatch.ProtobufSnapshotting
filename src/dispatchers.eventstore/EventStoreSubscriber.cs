@@ -24,12 +24,12 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
             public decimal StreamPercentage
             {
-                get { return (((decimal)StartPosition + EventsProcessed)/TotalEvents)*100; }
+                get { return (((decimal) StartPosition + EventsProcessed)/TotalEvents)*100; }
             }
 
             public decimal CatchupPercentage
             {
-                get { return ((decimal)EventsProcessed/(TotalEvents - StartPosition))*100; }
+                get { return ((decimal) EventsProcessed/(TotalEvents - StartPosition))*100; }
             }
 
 
@@ -43,7 +43,9 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
             public override string ToString()
             {
-                return String.Format("[{0}] Stream Pos: {1:0.#}% ({2}/{3}), Caught up: {4:0.#}% ({5}/{6})", StreamName, StreamPercentage, EventsProcessed + StartPosition, TotalEvents, CatchupPercentage, EventsProcessed, TotalEvents - StartPosition);
+                return String.Format("[{0}] Stream Pos: {1:0.#}% ({2}/{3}), Caught up: {4:0.#}% ({5}/{6})", StreamName,
+                    StreamPercentage, EventsProcessed + StartPosition, TotalEvents, CatchupPercentage, EventsProcessed,
+                    TotalEvents - StartPosition);
             }
         }
 
@@ -64,21 +66,30 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         {
             get
             {
-                var totalEvents = _connection.ReadStreamEventsBackwardAsync(_streamName, StreamPosition.End, 1, true).Result.Events[0].OriginalEventNumber;
+                var totalEvents =
+                    _connection.ReadStreamEventsBackwardAsync(_streamName, StreamPosition.End, 1, true).Result.Events[0]
+                        .OriginalEventNumber;
                 var start = _startingPosition ?? 0;
                 return new CatchupProgress(_eventsProcessed, start, _streamName, totalEvents);
             }
         }
 
-        public bool ViewModelsReady { get { return _viewModelIsReady; } }
+        public bool ViewModelsReady
+        {
+            get { return _viewModelIsReady; }
+        }
+
         private ILogger _logger;
 
-        public EventStoreSubscriber(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher, string streamName,  int? startingPosition = null, int catchUpPageSize = 1024, int upperQueueBound = 2048)
+        public EventStoreSubscriber(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher,
+            string streamName, ILogger logger, int? startingPosition = null, int catchUpPageSize = 1024,
+            int upperQueueBound = 2048)
         {
-            Init(connection, dispatcher, streamName, startingPosition, catchUpPageSize, upperQueueBound);    
+            Init(connection, dispatcher, streamName, logger, startingPosition, catchUpPageSize, upperQueueBound);
         }
 
         public EventStoreSubscriber(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher,
+            ILogger logger,
             string streamName, string checkpointFilePath, int catchupPageSize = 1024, int upperQueueBound = 2048)
         {
             int? startingPosition = null;
@@ -87,15 +98,16 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             var initialCheckpointPosition = _checkpoint.Read();
 
             if (initialCheckpointPosition != -1)
-                startingPosition = (int)initialCheckpointPosition;
-            
-            Init(connection, dispatcher, streamName, startingPosition,catchupPageSize, upperQueueBound);
+                startingPosition = (int) initialCheckpointPosition;
+
+            Init(connection, dispatcher, streamName, logger, startingPosition, catchupPageSize, upperQueueBound);
         }
 
-        private void Init(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher, string streamName, int? startingPosition = null, int catchupPageSize = 1024, int upperQueueBound = 2048)
+        private void Init(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher, string streamName,
+            ILogger logger, int? startingPosition = null, int catchupPageSize = 1024, int upperQueueBound = 2048)
         {
             _liveProcessingTimer.Elapsed += LiveProcessingTimerOnElapsed;
-            _logger = connection.Settings.Log;
+            _logger = logger;
             _eventsProcessed = 0;
             _startingPosition = startingPosition;
             _dispatcher = dispatcher;
@@ -112,21 +124,25 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
         public void Start()
         {
-            _subscription = _connection.SubscribeToStreamFrom(_streamName, _startingPosition.HasValue ? (int?)_startingPosition.Value : null, true, EventAppeared, LiveProcessingStarted, SubscriptionDropped, readBatchSize: _catchupPageSize);
+            _subscription = _connection.SubscribeToStreamFrom(_streamName,
+                _startingPosition.HasValue ? (int?) _startingPosition.Value : null, true, EventAppeared,
+                LiveProcessingStarted, SubscriptionDropped, readBatchSize: _catchupPageSize);
             Thread processor = new Thread(ProcessEvents);
             processor.Start();
         }
 
         private void ProcessEvents()
         {
-            foreach(var item in _queue.GetConsumingEnumerable()) {
+            foreach (var item in _queue.GetConsumingEnumerable())
+            {
                 ProcessEvent(item);
             }
         }
 
-        private readonly Timer _liveProcessingTimer = new Timer(10 * 60 * 1000);
+        private readonly Timer _liveProcessingTimer = new Timer(10*60*1000);
 
-        private void SubscriptionDropped(EventStoreCatchUpSubscription eventStoreCatchUpSubscription, SubscriptionDropReason subscriptionDropReason, Exception ex)
+        private void SubscriptionDropped(EventStoreCatchUpSubscription eventStoreCatchUpSubscription,
+            SubscriptionDropReason subscriptionDropReason, Exception ex)
         {
             if (ex != null)
             {
@@ -140,7 +156,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
             lock (_liveProcessingTimer)
             {
-                if(!_liveProcessingTimer.Enabled)
+                if (!_liveProcessingTimer.Enabled)
                     _liveProcessingTimer.Start();
             }
         }
@@ -156,7 +172,8 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             _viewModelIsReady = true;
         }
 
-        private void EventAppeared(EventStoreCatchUpSubscription eventStoreCatchUpSubscription, ResolvedEvent resolvedEvent)
+        private void EventAppeared(EventStoreCatchUpSubscription eventStoreCatchUpSubscription,
+            ResolvedEvent resolvedEvent)
         {
             _queue.Add(resolvedEvent);
         }
@@ -177,7 +194,8 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Error dispatching event from Event Store subscriber ({0}/{1})", resolvedEvent.Event.EventStreamId,
+                _logger.Error(ex, "Error dispatching event from Event Store subscriber ({0}/{1})",
+                    resolvedEvent.Event.EventStreamId,
                     resolvedEvent.Event.EventNumber);
             }
         }
@@ -185,13 +203,13 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         public void ShutDown()
         {
             _subscription.Stop(TimeSpan.FromSeconds(1));
-        }   
+        }
     }
 
     //pinched from Event Store source http://geteventstore.com
     internal class WriteThroughFileCheckpoint
     {
-        static class Filenative
+        private static class Filenative
         {
             [DllImport("kernel32", SetLastError = true)]
             internal static extern SafeFileHandle CreateFile(
@@ -203,6 +221,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
                 int FlagsAndAttributes,
                 IntPtr hTemplate
                 );
+
             public const int FILE_FLAG_NO_BUFFERING = 0x20000000;
         }
 
@@ -216,12 +235,15 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         private readonly BinaryReader _reader;
         private readonly MemoryStream _memStream;
         private readonly byte[] buffer;
+
         public WriteThroughFileCheckpoint(string filename)
             : this(filename, Guid.NewGuid().ToString(), false)
         {
         }
 
-        public WriteThroughFileCheckpoint(string filename, string name) : this(filename, name, false) { }
+        public WriteThroughFileCheckpoint(string filename, string name) : this(filename, name, false)
+        {
+        }
 
         public WriteThroughFileCheckpoint(string filename, string name, bool cached, long initValue = 0)
         {
@@ -232,12 +254,12 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             _memStream = new MemoryStream(buffer);
 
             var handle = Filenative.CreateFile(_filename,
-                                               (uint)FileAccess.ReadWrite,
-                                               (uint)FileShare.ReadWrite,
-                                               IntPtr.Zero,
-                                               (uint)FileMode.OpenOrCreate,
-                                               Filenative.FILE_FLAG_NO_BUFFERING | (int)FileOptions.WriteThrough,
-                                               IntPtr.Zero);
+                (uint) FileAccess.ReadWrite,
+                (uint) FileShare.ReadWrite,
+                IntPtr.Zero,
+                (uint) FileMode.OpenOrCreate,
+                Filenative.FILE_FLAG_NO_BUFFERING | (int) FileOptions.WriteThrough,
+                IntPtr.Zero);
 
             _stream = new FileStream(handle, FileAccess.ReadWrite, 4096);
             var exists = _stream.Length == 4096;
@@ -254,7 +276,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
 
         [DllImport("kernel32.dll")]
-        static extern bool FlushFileBuffers(IntPtr hFile);
+        private static extern bool FlushFileBuffers(IntPtr hFile);
 
         public void Close()
         {
