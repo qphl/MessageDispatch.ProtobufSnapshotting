@@ -151,12 +151,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             if (_lastHeartbeat < DateTime.UtcNow.Subtract(_heartbeatTimeout))
             {
                 _logger.Error(string.Format("Subscriber heartbeat timeout, last heartbeat: {0} restarting subscription", _lastHeartbeat.ToString("G")));
-                _heartbeatTimer.Stop();
-                _subscription.Stop();
-                _subscription = null;
-                _viewModelIsReady = false;
-                _startingPosition = _lastProcessedEventNumber;
-                Start(true);
+                RestartSubscription();
             }
         }
 
@@ -164,6 +159,16 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         {
             _connection.AppendToStreamAsync(_heartbeatStreamName, ExpectedVersion.NoStream,
                 new EventData(Guid.NewGuid(), _heartbeatEventType, false, new byte[0], new byte[0])).Wait();
+        }
+
+        private void RestartSubscription()
+        {
+            _heartbeatTimer.Stop();
+            _subscription.Stop();
+            _subscription = null;
+            _viewModelIsReady = false;
+            _startingPosition = _lastProcessedEventNumber;
+            Start(true);
         }
 
         private void LiveProcessingTimerOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
@@ -209,6 +214,8 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
                 _logger.Info("Event Store subscription dropped {0}", subscriptionDropReason.ToString());
             }
             _viewModelIsReady = false;
+
+            RestartSubscription();
 
             lock (_liveProcessingTimer)
             {
