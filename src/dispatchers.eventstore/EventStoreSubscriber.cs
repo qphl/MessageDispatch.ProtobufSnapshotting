@@ -59,6 +59,14 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         private readonly WriteThroughFileCheckpoint _checkpoint;
         private int _catchupPageSize;
         private BlockingCollection<ResolvedEvent> _queue;
+        private readonly string _heartbeatStreamName = "SubscriberHeartbeat-" + Guid.NewGuid();
+        private readonly string _heartbeatEventType = "SubscriberHeartbeat";
+        private TimeSpan _heartbeatTimeout;
+        private int? _lastProcessedEventNumber;
+
+        private readonly Timer _liveProcessingTimer = new Timer(10 * 60 * 1000);
+        private Timer _heartbeatTimer;
+        private DateTime _lastHeartbeat;
 
         private int _eventsProcessed;
 
@@ -83,14 +91,14 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
         public EventStoreSubscriber(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher,
             string streamName, ILogger logger, int? startingPosition = null, int catchUpPageSize = 1024,
-            int upperQueueBound = 2048)
+            int upperQueueBound = 2048, TimeSpan? heartbeatFrequency = null, TimeSpan? heartbeatTimeout = null)
         {
-            Init(connection, dispatcher, streamName, logger, startingPosition, catchUpPageSize, upperQueueBound);
+            Init(connection, dispatcher, streamName, logger, heartbeatFrequency, heartbeatTimeout, startingPosition, catchUpPageSize, upperQueueBound);
         }
 
         public EventStoreSubscriber(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher,
             ILogger logger,
-            string streamName, string checkpointFilePath, int catchupPageSize = 1024, int upperQueueBound = 2048)
+            string streamName, string checkpointFilePath, int catchupPageSize = 1024, int upperQueueBound = 2048, TimeSpan? heartbeatFrequency = null, TimeSpan? heartbeatTimeout = null)
         {
             int? startingPosition = null;
             _checkpoint = new WriteThroughFileCheckpoint(checkpointFilePath, "lastProcessedPosition", false, -1);
@@ -100,21 +108,67 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             if (initialCheckpointPosition != -1)
                 startingPosition = (int) initialCheckpointPosition;
 
-            Init(connection, dispatcher, streamName, logger, startingPosition, catchupPageSize, upperQueueBound);
+            Init(connection, dispatcher, streamName, logger, heartbeatFrequency, heartbeatTimeout, startingPosition, catchupPageSize, upperQueueBound);
         }
 
-        private void Init(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher, string streamName,
-            ILogger logger, int? startingPosition = null, int catchupPageSize = 1024, int upperQueueBound = 2048)
+        private void Init(IEventStoreConnection connection, IDispatcher<ResolvedEvent> dispatcher, string streamName, 
+            ILogger logger, TimeSpan? heartbeatFrequency, TimeSpan? heartbeatTimeout, int? startingPosition = null, int catchupPageSize = 1024, int upperQueueBound = 2048)
         {
             _liveProcessingTimer.Elapsed += LiveProcessingTimerOnElapsed;
             _logger = logger;
             _eventsProcessed = 0;
             _startingPosition = startingPosition;
+            _lastProcessedEventNumber = startingPosition;
             _dispatcher = dispatcher;
             _streamName = streamName;
             _connection = connection;
             _catchupPageSize = catchupPageSize;
+
+            if (!heartbeatFrequency.HasValue)
+                heartbeatFrequency = TimeSpan.FromMinutes(1);
+
+            if (!heartbeatTimeout.HasValue)
+                heartbeatTimeout = TimeSpan.FromMinutes(2);
+
+            if(heartbeatFrequency < heartbeatTimeout)
+                throw new ArgumentException("Heartbeat timeout must be greater than heartbeat frequency", nameof(heartbeatTimeout));
+
+            _heartbeatTimeout = heartbeatTimeout.Value;
+            _lastHeartbeat = DateTime.UtcNow;
+            _heartbeatTimer = new Timer(heartbeatFrequency.Value.TotalMilliseconds);
+            _heartbeatTimer.Elapsed += HeartbeatTimerOnElapsed;
+
             _queue = new BlockingCollection<ResolvedEvent>(upperQueueBound);
+        }
+
+        private void HeartbeatTimerOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
+        {
+            SendHeartbeat();
+
+            if (!_viewModelIsReady)
+                return;
+
+            if (_lastHeartbeat < DateTime.UtcNow.Subtract(_heartbeatTimeout))
+            {
+                _logger.Error(string.Format("Subscriber heartbeat timeout, last heartbeat: {0} restarting subscription", _lastHeartbeat.ToString("G")));
+                RestartSubscription();
+            }
+        }
+
+        public void SendHeartbeat()
+        {
+            _connection.AppendToStreamAsync(_heartbeatStreamName, ExpectedVersion.NoStream,
+                new EventData(Guid.NewGuid(), _heartbeatEventType, false, new byte[0], new byte[0])).Wait();
+        }
+
+        private void RestartSubscription()
+        {
+            _heartbeatTimer.Stop();
+            _subscription.Stop();
+            _subscription = null;
+            _viewModelIsReady = false;
+            _startingPosition = _lastProcessedEventNumber;
+            Start(true);
         }
 
         private void LiveProcessingTimerOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
@@ -122,13 +176,22 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             _logger.Error("Event Store Subscription has been down for 10 minutes");
         }
 
-        public void Start()
+        public void Start(bool restart = false)
         {
+            SendHeartbeat();
+
             _subscription = _connection.SubscribeToStreamFrom(_streamName,
-                _startingPosition.HasValue ? (int?) _startingPosition.Value : null, true, EventAppeared,
+                _startingPosition, true, EventAppeared,
                 LiveProcessingStarted, SubscriptionDropped, readBatchSize: _catchupPageSize);
-            Thread processor = new Thread(ProcessEvents);
-            processor.Start();
+
+            _heartbeatTimer.Start();
+
+            if (!restart)
+            {
+                _connection.SetStreamMetadataAsync(_heartbeatStreamName, ExpectedVersion.Any, StreamMetadata.Create(maxCount: 2));
+                Thread processor = new Thread(ProcessEvents);
+                processor.Start();
+            }
         }
 
         private void ProcessEvents()
@@ -138,8 +201,6 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
                 ProcessEvent(item);
             }
         }
-
-        private readonly Timer _liveProcessingTimer = new Timer(10*60*1000);
 
         private void SubscriptionDropped(EventStoreCatchUpSubscription eventStoreCatchUpSubscription,
             SubscriptionDropReason subscriptionDropReason, Exception ex)
@@ -153,6 +214,8 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
                 _logger.Info("Event Store subscription dropped {0}", subscriptionDropReason.ToString());
             }
             _viewModelIsReady = false;
+
+            RestartSubscription();
 
             lock (_liveProcessingTimer)
             {
@@ -175,7 +238,14 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         private void EventAppeared(EventStoreCatchUpSubscription eventStoreCatchUpSubscription,
             ResolvedEvent resolvedEvent)
         {
+            if (resolvedEvent.Event.EventType == _heartbeatEventType)
+            {
+                _lastHeartbeat = DateTime.UtcNow;
+                return;
+            }
+
             _queue.Add(resolvedEvent);
+            _lastProcessedEventNumber = resolvedEvent.OriginalEventNumber;
         }
 
         private void ProcessEvent(ResolvedEvent resolvedEvent)
@@ -183,6 +253,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             _eventsProcessed++;
             if (resolvedEvent.Event == null || resolvedEvent.Event.EventType.StartsWith("$"))
                 return;
+
             try
             {
                 _dispatcher.Dispatch(resolvedEvent);
