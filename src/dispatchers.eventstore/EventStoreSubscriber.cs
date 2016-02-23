@@ -131,7 +131,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
                 heartbeatTimeout = TimeSpan.FromMinutes(2);
 
             if(heartbeatFrequency < heartbeatTimeout)
-                throw new ArgumentException("Heartbeat timeout must be greater than heartbeat frequency", "heartbeatTimeout");
+                throw new ArgumentException("Heartbeat timeout must be greater than heartbeat frequency", nameof(heartbeatTimeout));
 
             _heartbeatTimeout = heartbeatTimeout.Value;
             _lastHeartbeat = DateTime.UtcNow;
