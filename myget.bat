@@ -5,7 +5,7 @@ if "%config%" == "" (
 )
 
 REM Build
-call "%msbuild% src\cr-message-dispatch.sln /p:Configuration=""%config%"" /m /v:M /fl /flp:LogFile=msbuild.log;Verbosity=Normal /nr:false"
+cmd /c %msbuild% src\cr-message-dispatch.sln /p:Configuration="%config%" /m /v:M /fl /flp:LogFile=msbuild.log;Verbosity=Normal /nr:false
 if not "%errorlevel%"=="0" goto failure
 
 REM Package
