@@ -263,7 +263,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         private void EventAppeared(EventStoreCatchUpSubscription eventStoreCatchUpSubscription,
             ResolvedEvent resolvedEvent)
         {
-            if (resolvedEvent.Event.EventType == _heartbeatEventType)
+            if (resolvedEvent.Event != null && resolvedEvent.Event.EventType == _heartbeatEventType)
             {
                 _lastHeartbeat = DateTime.UtcNow;
                 return;
