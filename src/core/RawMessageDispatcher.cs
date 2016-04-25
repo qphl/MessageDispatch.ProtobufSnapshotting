@@ -14,7 +14,7 @@ namespace CR.MessageDispatch.Core
 
         protected override bool TryGetMessageType(TMessage rawMessage, out Type type)
         {
-            type = typeof(TMessage);
+            type = rawMessage.GetType();
             return true;
         }
 
