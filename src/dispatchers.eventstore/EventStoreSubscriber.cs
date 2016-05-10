@@ -185,11 +185,14 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             {
                 _heartbeatTimer.Stop();
             }
-            _subscription.Stop();
-            _subscription = null;
-            _viewModelIsReady = false;
-            _startingPosition = _lastProcessedEventNumber;
-            Start(true);
+            lock (_subscription)
+            {
+                _subscription.Stop();
+                _subscription = null;
+                _viewModelIsReady = false;
+                _startingPosition = _lastProcessedEventNumber;
+                Start(true);
+            }
         }
 
         private void LiveProcessingTimerOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
@@ -204,7 +207,6 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
                 SendHeartbeat();
                 _heartbeatTimer.Start();
             }
-
             _subscription = _connection.SubscribeToStreamFrom(_streamName,
                 _startingPosition, true, EventAppeared,
                 LiveProcessingStarted, SubscriptionDropped, readBatchSize: _catchupPageSize);

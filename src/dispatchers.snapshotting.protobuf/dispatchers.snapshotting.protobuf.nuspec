@@ -14,7 +14,7 @@
     <releaseNotes>Updated version of core reference</releaseNotes>
     <copyright>Copyright 2015</copyright>
     <dependencies>
-      <dependency id="CR.MessageDispatch.Core" version="1.0.8" />
+      <dependency id="CR.MessageDispatch.Core" version="1.0.9" />
     </dependencies>
   </metadata>
 </package>
