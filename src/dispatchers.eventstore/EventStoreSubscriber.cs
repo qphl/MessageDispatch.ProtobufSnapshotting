@@ -55,6 +55,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
         private int? _startingPosition;
         private object _subscription;
+        private object _subscriptionLock = new object();
         private string _streamName;
         private readonly WriteThroughFileCheckpoint _checkpoint;
         private int _catchupPageSize;
@@ -223,7 +224,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             {
                 _heartbeatTimer.Stop();
             }
-            lock (_subscription)
+            lock (_subscriptionLock)
             {
                 if (_liveOnly)
                 {
@@ -252,21 +253,26 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
                 SendHeartbeat();
                 _heartbeatTimer.Start();
             }
-            if (_liveOnly)
+            lock (_subscriptionLock)
             {
-                _subscription = _connection.SubscribeToStreamAsync(_streamName, true, EventAppeared, SubscriptionDropped).Result;
+                if (_liveOnly)
+                {
+                    _subscription =
+                        _connection.SubscribeToStreamAsync(_streamName, true, EventAppeared, SubscriptionDropped).Result;
+                }
+                else
+                {
+                    var catchUpSettings = new CatchUpSubscriptionSettings(_maxLiveQueueSize, _catchupPageSize, true,
+                        true);
+                    _subscription = _connection.SubscribeToStreamFrom(_streamName, _startingPosition, catchUpSettings,
+                        EventAppeared, LiveProcessingStarted, SubscriptionDropped);
+                }
             }
-            else
-            {
-                var catchUpSettings = new CatchUpSubscriptionSettings(_maxLiveQueueSize,_catchupPageSize,true,true);
-                _subscription = _connection.SubscribeToStreamFrom(_streamName, _startingPosition, catchUpSettings,
-                    EventAppeared, LiveProcessingStarted, SubscriptionDropped);
-            }
-
             if (!restart)
             {
-                if(_usingHeartbeats)
-                    _connection.SetStreamMetadataAsync(_heartbeatStreamName, ExpectedVersion.Any, StreamMetadata.Create(maxCount: 2));
+                if (_usingHeartbeats)
+                    _connection.SetStreamMetadataAsync(_heartbeatStreamName, ExpectedVersion.Any,
+                        StreamMetadata.Create(maxCount: 2));
 
                 Thread processor = new Thread(ProcessEvents);
                 processor.Start();
@@ -352,13 +358,16 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
         public void ShutDown()
         {
-            if (_liveOnly)
+            lock (_subscriptionLock)
             {
-                ((EventStoreSubscription)_subscription).Close();
-            }
-            else
-            {
-                ((EventStoreCatchUpSubscription)_subscription).Stop(TimeSpan.FromSeconds(1));
+                if (_liveOnly)
+                {
+                    ((EventStoreSubscription) _subscription).Close();
+                }
+                else
+                {
+                    ((EventStoreCatchUpSubscription) _subscription).Stop(TimeSpan.FromSeconds(1));
+                }
             }
         }
     }
