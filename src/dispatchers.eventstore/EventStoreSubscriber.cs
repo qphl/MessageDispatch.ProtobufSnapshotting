@@ -290,6 +290,9 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         private void SubscriptionDropped(object eventStoreCatchUpSubscription,
             SubscriptionDropReason subscriptionDropReason, Exception ex)
         {
+            if (subscriptionDropReason == SubscriptionDropReason.UserInitiated) //We don't care if we called close
+                return;
+
             if (ex != null)
             {
                 _logger.Info(ex, "Event Store subscription dropped {0}", subscriptionDropReason.ToString());
@@ -298,6 +301,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             {
                 _logger.Info("Event Store subscription dropped {0}", subscriptionDropReason.ToString());
             }
+
             _viewModelIsReady = false;
 
             RestartSubscription();
