@@ -182,6 +182,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
                 _lastHeartbeat = DateTime.UtcNow;
                 _heartbeatTimer = new Timer(heartbeatFrequency.Value.TotalMilliseconds);
                 _heartbeatTimer.Elapsed += HeartbeatTimerOnElapsed;
+                _heartbeatTimer.Start();
                 _usingHeartbeats = true;
             }
             else if (heartbeatTimeout == null && heartbeatFrequency != null)
