@@ -274,7 +274,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
                     _connection.SetStreamMetadataAsync(_heartbeatStreamName, ExpectedVersion.Any,
                         StreamMetadata.Create(maxCount: 2));
 
-                Thread processor = new Thread(ProcessEvents);
+                Thread processor = new Thread(ProcessEvents) { IsBackground = true };
                 processor.Start();
             }
         }
