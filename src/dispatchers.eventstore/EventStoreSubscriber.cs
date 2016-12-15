@@ -236,6 +236,8 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
                 }
                 _subscription = null;
                 _viewModelIsReady = false;
+                _catchingUp = true;
+                _lastNonLiveEventId = Guid.Empty;
                 _startingPosition = _lastProcessedEventNumber;
                 Start(true);
             }
@@ -283,7 +285,14 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         {
             foreach (var item in _queue.GetConsumingEnumerable())
             {
-                ProcessEvent(item);
+                if (!_viewModelIsReady && item.Event != null && item.Event.EventId == _lastNonLiveEventId)
+                {
+                    _viewModelIsReady = true;
+                }
+                else
+                {
+                    ProcessEvent(item);
+                }
             }
         }
 
@@ -302,8 +311,6 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
                 _logger.Info("Event Store subscription dropped {0}", subscriptionDropReason.ToString());
             }
 
-            _viewModelIsReady = false;
-
             RestartSubscription();
 
             lock (_liveProcessingTimer)
@@ -318,11 +325,17 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             lock (_liveProcessingTimer)
             {
                 _liveProcessingTimer.Stop();
+                _catchingUp = false;
+
+                if (_lastNonLiveEventId == Guid.Empty)
+                    _viewModelIsReady = true;
             }
 
             _logger.Info("Live event processing started");
-            _viewModelIsReady = true;
         }
+
+        private bool _catchingUp = true;
+        private Guid _lastNonLiveEventId = Guid.Empty;
 
         private void EventAppeared(object eventStoreCatchUpSubscription,
             ResolvedEvent resolvedEvent)
@@ -332,6 +345,10 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
                 _lastHeartbeat = DateTime.UtcNow;
                 return;
             }
+
+            if (_catchingUp && resolvedEvent.Event != null)
+                _lastNonLiveEventId = resolvedEvent.Event.EventId;
+
 
             _queue.Add(resolvedEvent);
             _lastProcessedEventNumber = resolvedEvent.OriginalEventNumber;
