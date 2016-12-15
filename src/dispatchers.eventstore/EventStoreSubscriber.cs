@@ -49,7 +49,6 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             }
         }
 
-        private bool _viewModelIsReady;
         private IEventStoreConnection _connection;
         private IDispatcher<ResolvedEvent> _dispatcher;
 
@@ -63,7 +62,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         private readonly string _heartbeatStreamName = "SubscriberHeartbeat-" + Guid.NewGuid();
         private readonly string _heartbeatEventType = "SubscriberHeartbeat";
         private TimeSpan _heartbeatTimeout;
-        private int? _lastProcessedEventNumber;
+        private int? _lastReceivedEventNumber;
         private bool _liveOnly;
 
         private readonly Timer _liveProcessingTimer = new Timer(10 * 60 * 1000);
@@ -86,10 +85,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             }
         }
 
-        public bool ViewModelsReady
-        {
-            get { return _viewModelIsReady; }
-        }
+        public bool ViewModelsReady => !_catchingUp && (_lastDispatchedEventNumber >= _lastNonLiveEventNumber);
 
         private ILogger _logger;
 
@@ -157,7 +153,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             _logger = logger;
             _eventsProcessed = 0;
             _startingPosition = startingPosition;
-            _lastProcessedEventNumber = startingPosition;
+            _lastReceivedEventNumber = startingPosition;
             _dispatcher = dispatcher;
             _streamName = streamName;
             _connection = connection;
@@ -202,7 +198,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         {
             SendHeartbeat();
 
-            if (!_viewModelIsReady)
+            if (ViewModelsReady)
                 return;
 
             if (_lastHeartbeat < DateTime.UtcNow.Subtract(_heartbeatTimeout))
@@ -235,10 +231,9 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
                     ((EventStoreCatchUpSubscription)_subscription).Stop();
                 }
                 _subscription = null;
-                _viewModelIsReady = false;
                 _catchingUp = true;
-                _lastNonLiveEventId = Guid.Empty;
-                _startingPosition = _lastProcessedEventNumber;
+                _lastNonLiveEventNumber = Int32.MinValue;
+                _startingPosition = _lastReceivedEventNumber;
                 Start(true);
             }
         }
@@ -285,14 +280,8 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         {
             foreach (var item in _queue.GetConsumingEnumerable())
             {
-                if (!_viewModelIsReady && item.Event != null && item.Event.EventId == _lastNonLiveEventId)
-                {
-                    _viewModelIsReady = true;
-                }
-                else
-                {
-                    ProcessEvent(item);
-                }
+                ProcessEvent(item);
+                _lastDispatchedEventNumber = item.OriginalEventNumber;
             }
         }
 
@@ -326,16 +315,14 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             {
                 _liveProcessingTimer.Stop();
                 _catchingUp = false;
-
-                if (_lastNonLiveEventId == Guid.Empty)
-                    _viewModelIsReady = true;
             }
 
             _logger.Info("Live event processing started");
         }
 
         private bool _catchingUp = true;
-        private Guid _lastNonLiveEventId = Guid.Empty;
+        private int _lastNonLiveEventNumber = Int32.MinValue;
+        private int _lastDispatchedEventNumber;
 
         private void EventAppeared(object eventStoreCatchUpSubscription,
             ResolvedEvent resolvedEvent)
@@ -346,12 +333,13 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
                 return;
             }
 
-            if (_catchingUp && resolvedEvent.Event != null)
-                _lastNonLiveEventId = resolvedEvent.Event.EventId;
-
+            if (_catchingUp)
+            {
+                _lastNonLiveEventNumber = resolvedEvent.OriginalEventNumber;
+            }
 
             _queue.Add(resolvedEvent);
-            _lastProcessedEventNumber = resolvedEvent.OriginalEventNumber;
+            _lastReceivedEventNumber = resolvedEvent.OriginalEventNumber;
         }
 
         private void ProcessEvent(ResolvedEvent resolvedEvent)
