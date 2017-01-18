@@ -288,8 +288,6 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         private void SubscriptionDropped(object eventStoreCatchUpSubscription,
             SubscriptionDropReason subscriptionDropReason, Exception ex)
         {
-            if (subscriptionDropReason == SubscriptionDropReason.UserInitiated) //We don't care if we called close
-                return;
 
             if (ex != null)
             {
@@ -300,6 +298,19 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
                 _logger.Info("Event Store subscription dropped {0}", subscriptionDropReason.ToString());
             }
 
+            if (subscriptionDropReason == SubscriptionDropReason.UserInitiated)
+            {
+                _logger.Info("Not attempting to restart user initiated drop. Subscription is dead.");
+                return;
+            }//We don't care if we called close,
+
+
+            if (subscriptionDropReason == SubscriptionDropReason.ConnectionClosed)
+            {
+                _logger.Info("Not attempting to restart subscription on disposed connection. Subscription is dead.");
+                return;
+            }
+                
             RestartSubscription();
 
             lock (_liveProcessingTimer)
