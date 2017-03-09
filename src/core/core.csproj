@@ -43,6 +43,7 @@
     <Compile Include="DeserializingMessageDispatcher.cs" />
     <Compile Include="ErrorLoggingDIspatcher.cs" />
     <Compile Include="ISnapshottingDispatcher.cs" />
+    <Compile Include="OnExceptionSkipOrExitDispatcher.cs" />
     <Compile Include="RawMessageDispatcher.cs" />
     <Compile Include="IDispatcher.cs" />
     <Compile Include="IConsume.cs" />
