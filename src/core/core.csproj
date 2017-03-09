@@ -50,6 +50,7 @@
     <Compile Include="MessageHandlerRegistry.cs" />
     <Compile Include="MultiplexingDispatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RetryingDispatcher.cs" />
     <Compile Include="TransactionalDispatcher.cs" />
   </ItemGroup>
   <ItemGroup>
