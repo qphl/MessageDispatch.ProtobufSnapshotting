@@ -7,16 +7,11 @@ namespace CR.MessageDispatch.Core
         private readonly IDispatcher<TMessage> _dispatcher;
         private readonly Func<TMessage, Exception, bool> _shouldExit;
 
-        public OnExceptionSkipOrExitDispatcher(IDispatcher<TMessage> dispatcher, Func<TMessage, Exception, bool> shouldExit)
+        public OnExceptionSkipOrExitDispatcher(IDispatcher<TMessage> dispatcher,
+            Func<TMessage, Exception, bool> shouldExit)
         {
             _dispatcher = dispatcher;
             _shouldExit = shouldExit;
-        }
-
-        public OnExceptionSkipOrExitDispatcher(IDispatcher<TMessage> dispatcher, bool alwaysExit)
-        {
-            _dispatcher = dispatcher;
-            _shouldExit = (_, __) => alwaysExit;
         }
 
         public void Dispatch(TMessage message)
@@ -32,6 +27,13 @@ namespace CR.MessageDispatch.Core
                     Environment.Exit(1);
                 }
             }
+        }
+    }
+
+    public class OnExceptionExitDispatcher<TMessage> : OnExceptionSkipOrExitDispatcher<TMessage>
+    {
+        public OnExceptionExitDispatcher(IDispatcher<TMessage> dispatcher) : base(dispatcher, (_, __) => true)
+        {
         }
     }
 }
