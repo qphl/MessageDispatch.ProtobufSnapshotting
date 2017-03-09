@@ -7,12 +7,12 @@ namespace CR.MessageDispatch.Core
     {
         private readonly int? _retryLimit;
         private readonly IDispatcher<TMessage> _dispatcher;
-        private readonly Action<string,Exception> _retryLogFunction;
+        private readonly Action<string,Exception> _retryLogAction;
 
-        protected RetryingDispatcher(IDispatcher<TMessage> dispatcher, int? retryLimit, Action<string, Exception> retryLogFunction)
+        protected RetryingDispatcher(IDispatcher<TMessage> dispatcher, int? retryLimit, Action<string, Exception> retryLogAction)
         {
             _retryLimit = retryLimit;
-            _retryLogFunction = retryLogFunction;
+            _retryLogAction = retryLogAction;
             _dispatcher = dispatcher;
         }
 
@@ -30,7 +30,7 @@ namespace CR.MessageDispatch.Core
                 {
                     var retryIn = RetryInterval(attempts);
                     var attemptString = $"Attempt {attempts} of {_retryLimit} failed, retrying in {retryIn}";
-                    _retryLogFunction(attemptString, e);
+                    _retryLogAction(attemptString, e);
 
                     if (_retryLimit.HasValue && attempts > _retryLimit.Value)
                         throw;
@@ -48,7 +48,7 @@ namespace CR.MessageDispatch.Core
     {
         private readonly TimeSpan _retryPeriod;
 
-        public FixedRetryingDispatcher(IDispatcher<TMessage> dispatcher, int? retryLimit, TimeSpan retryPeriod, Action<string, Exception> retryLogFunction) : base(dispatcher, retryLimit, retryLogFunction)
+        public FixedRetryingDispatcher(IDispatcher<TMessage> dispatcher, int? retryLimit, TimeSpan retryPeriod, Action<string, Exception> retryLogAction) : base(dispatcher, retryLimit, retryLogAction)
         {
             _retryPeriod = retryPeriod;
         }
@@ -64,7 +64,7 @@ namespace CR.MessageDispatch.Core
         private readonly TimeSpan _retryPeriod;
         private readonly int _exponentialMultiplier;
 
-        public ExponentialRetryingDispatcher(IDispatcher<TMessage> dispatcher, int? retryLimit, TimeSpan retryPeriod, int exponentialMultiplier, Action<string, Exception> retryLogFunction) : base(dispatcher, retryLimit, retryLogFunction)
+        public ExponentialRetryingDispatcher(IDispatcher<TMessage> dispatcher, int? retryLimit, TimeSpan retryPeriod, int exponentialMultiplier, Action<string, Exception> retryLogAction) : base(dispatcher, retryLimit, retryLogAction)
         {
             _retryPeriod = retryPeriod;
             _exponentialMultiplier = exponentialMultiplier;
