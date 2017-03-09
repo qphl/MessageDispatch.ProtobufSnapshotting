@@ -41,7 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DeserializingMessageDispatcher.cs" />
-    <Compile Include="ErrorLoggingDIspatcher.cs" />
+    <Compile Include="ErrorHandlingDispatcher.cs" />
     <Compile Include="ISnapshottingDispatcher.cs" />
     <Compile Include="OnExceptionSkipOrExitDispatcher.cs" />
     <Compile Include="RawMessageDispatcher.cs" />
