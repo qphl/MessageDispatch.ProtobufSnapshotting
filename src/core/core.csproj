@@ -41,7 +41,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DeserializingMessageDispatcher.cs" />
+    <Compile Include="ErrorHandlingDispatcher.cs" />
     <Compile Include="ISnapshottingDispatcher.cs" />
+    <Compile Include="OnExceptionSkipOrExitDispatcher.cs" />
     <Compile Include="RawMessageDispatcher.cs" />
     <Compile Include="IDispatcher.cs" />
     <Compile Include="IConsume.cs" />
@@ -50,6 +52,7 @@
     <Compile Include="MessageHandlerRegistry.cs" />
     <Compile Include="MultiplexingDispatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RetryingDispatcher.cs" />
     <Compile Include="TransactionalDispatcher.cs" />
   </ItemGroup>
   <ItemGroup>
