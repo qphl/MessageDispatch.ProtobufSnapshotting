@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Odbc;
 using System.Threading;
 
 namespace CR.MessageDispatch.Core
@@ -28,12 +29,17 @@ namespace CR.MessageDispatch.Core
                 }
                 catch (Exception e)
                 {
-                    var retryIn = RetryInterval(attempts);
-                    var attemptString = $"Attempt {attempts} of {_retryLimit} failed, retrying in {retryIn}";
-                    _retryLogAction(attemptString, e);
-
                     if (_retryLimit.HasValue && attempts > _retryLimit.Value)
+                    {
+                        var limitHitString = $"Retry limit of {_retryLimit} hit.";
+                        _retryLogAction(limitHitString, e);
                         throw;
+                    }
+
+                    var retryIn = RetryInterval(attempts);
+                    var limitString = _retryLimit.HasValue ? $" of {_retryLimit.Value} " : " ";
+                    var attemptString = $"Attempt {attempts}{limitString}failed, retrying in {retryIn}";
+                    _retryLogAction(attemptString, e);
 
                     Thread.Sleep(retryIn);
                     attempts++;
