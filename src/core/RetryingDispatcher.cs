@@ -28,12 +28,12 @@ namespace CR.MessageDispatch.Core
                 }
                 catch (Exception e)
                 {
+                    if (_retryLimit.HasValue && attempts > _retryLimit.Value)
+                        throw;
+
                     var retryIn = RetryInterval(attempts);
                     var attemptString = $"Attempt {attempts} of {_retryLimit} failed, retrying in {retryIn}";
                     _retryLogAction(attemptString, e);
-
-                    if (_retryLimit.HasValue && attempts > _retryLimit.Value)
-                        throw;
 
                     Thread.Sleep(retryIn);
                     attempts++;
