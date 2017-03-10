@@ -1,19 +1,28 @@
 ﻿using System;
-using System.Data.Odbc;
 using System.Threading;
 
 namespace CR.MessageDispatch.Core
 {
     public abstract class RetryingDispatcher<TMessage> : IDispatcher<TMessage>
     {
+        public enum RetryDecision
+        {
+            Fail,
+            Retry,
+            Ignore
+        }
+
         private readonly int? _retryLimit;
         private readonly IDispatcher<TMessage> _dispatcher;
         private readonly Action<string,Exception> _retryLogAction;
+        private readonly Func<Exception, RetryDecision> _decide;
 
-        protected RetryingDispatcher(IDispatcher<TMessage> dispatcher, int? retryLimit, Action<string, Exception> retryLogAction)
+        protected RetryingDispatcher(IDispatcher<TMessage> dispatcher, int? retryLimit,
+            Action<string, Exception> retryLogAction = null, Func<Exception, RetryDecision> decide = null)
         {
             _retryLimit = retryLimit;
-            _retryLogAction = retryLogAction;
+            _retryLogAction = retryLogAction ?? ((_, __) => { });
+            _decide = decide ?? (_ => RetryDecision.Retry);
             _dispatcher = dispatcher;
         }
 
@@ -29,6 +38,18 @@ namespace CR.MessageDispatch.Core
                 }
                 catch (Exception e)
                 {
+                    switch (_decide(e))
+                    {
+                        case RetryDecision.Fail:
+                            throw;
+                        case RetryDecision.Ignore:
+                            return;
+                        case RetryDecision.Retry:
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+
                     if (_retryLimit.HasValue && attempts > _retryLimit.Value)
                     {
                         var limitHitString = $"Retry limit of {_retryLimit} hit.";
@@ -54,7 +75,7 @@ namespace CR.MessageDispatch.Core
     {
         private readonly TimeSpan _retryPeriod;
 
-        public FixedRetryingDispatcher(IDispatcher<TMessage> dispatcher, int? retryLimit, TimeSpan retryPeriod, Action<string, Exception> retryLogAction) : base(dispatcher, retryLimit, retryLogAction)
+        public FixedRetryingDispatcher(IDispatcher<TMessage> dispatcher, int? retryLimit, TimeSpan retryPeriod, Action<string, Exception> retryLogAction = null, Func<Exception, RetryDecision> decide = null) : base(dispatcher, retryLimit, retryLogAction, decide)
         {
             _retryPeriod = retryPeriod;
         }
@@ -68,9 +89,11 @@ namespace CR.MessageDispatch.Core
     public class ExponentialRetryingDispatcher<TMessage> : RetryingDispatcher<TMessage>
     {
         private readonly TimeSpan _retryPeriod;
-        private readonly int _exponentialMultiplier;
+        private readonly double _exponentialMultiplier;
 
-        public ExponentialRetryingDispatcher(IDispatcher<TMessage> dispatcher, int? retryLimit, TimeSpan retryPeriod, int exponentialMultiplier, Action<string, Exception> retryLogAction) : base(dispatcher, retryLimit, retryLogAction)
+        public ExponentialRetryingDispatcher(IDispatcher<TMessage> dispatcher, int? retryLimit, TimeSpan retryPeriod,
+            double exponentialMultiplier, Action<string, Exception> retryLogAction = null,
+            Func<Exception, RetryDecision> decide = null) : base(dispatcher, retryLimit, retryLogAction, decide)
         {
             _retryPeriod = retryPeriod;
             _exponentialMultiplier = exponentialMultiplier;
