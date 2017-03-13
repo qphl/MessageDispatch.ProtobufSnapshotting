@@ -11,7 +11,7 @@
     <iconUrl>https://raw.githubusercontent.com/cognisant/cr-message-dispatch/master/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A basic library for dispatching events to handlers</description>
-    <releaseNotes>Made optional decision function for wether to retry. Exponential multiplier is now a Double.</releaseNotes>
+    <releaseNotes>Added logging when exiting due to an exception.</releaseNotes>
     <copyright>Copyright 2017</copyright>
   </metadata>
 </package>
