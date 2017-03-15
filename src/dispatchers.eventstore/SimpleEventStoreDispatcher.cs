@@ -10,10 +10,12 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
     public class SimpleEventStoreDispatcher : DeserializingMessageDispatcher<ResolvedEvent, Type>
     {
         private readonly Dictionary<String, Type> _eventTypeMapping;
+        private readonly JsonSerializerSettings _serializerSettings;
 
-        public SimpleEventStoreDispatcher(IMessageHandlerLookup<Type> handlers, Dictionary<string, Type> eventTypeMapping) : base(handlers)
+        public SimpleEventStoreDispatcher(IMessageHandlerLookup<Type> handlers, Dictionary<string, Type> eventTypeMapping, JsonSerializerSettings serializerSettings = null) : base(handlers)
         {
             _eventTypeMapping = eventTypeMapping;
+            _serializerSettings = serializerSettings ?? new JsonSerializerSettings();
         }
 
         protected override bool TryGetMessageType(ResolvedEvent rawMessage, out Type type)
@@ -29,7 +31,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             try
             {
                 var jsonString = Encoding.UTF8.GetString(rawMessage.Event.Data);
-                deserialized = JsonConvert.DeserializeObject(jsonString, messageType);
+                deserialized = JsonConvert.DeserializeObject(jsonString, messageType, _serializerSettings);
                 return deserialized != null;
             }
             catch (Exception)
