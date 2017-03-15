@@ -14,8 +14,11 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
     /// </summary>
     public class EventStoreAggregateEventDispatcher : DeserializingMessageDispatcher<ResolvedEvent,Type>
     {
-        public EventStoreAggregateEventDispatcher(IMessageHandlerLookup<Type> handlers) : base(handlers)
+        private readonly JsonSerializerSettings _serializerSettings;
+
+        public EventStoreAggregateEventDispatcher(IMessageHandlerLookup<Type> handlers, JsonSerializerSettings serializerSettings = null) : base(handlers)
         {
+            _serializerSettings = serializerSettings ?? new JsonSerializerSettings();
         }
 
         private Dictionary<String,Type> typeCache = new Dictionary<string, Type>(); 
@@ -73,7 +76,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             try
             {
                 var jsonString = Encoding.UTF8.GetString(rawMessage.Event.Data);
-                deserialized = JsonConvert.DeserializeObject(jsonString, messageType);
+                deserialized = JsonConvert.DeserializeObject(jsonString, messageType, _serializerSettings);
                 return deserialized != null;
             }
             catch (Exception)
