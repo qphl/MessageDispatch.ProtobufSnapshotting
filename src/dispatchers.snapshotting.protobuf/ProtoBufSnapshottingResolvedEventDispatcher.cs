@@ -105,7 +105,7 @@ namespace CR.MessageDispatch.Dispatchers.Snapshotting.Protobuf
             InnerDispatcher.Dispatch(message);
         }
 
-        private void DoCheckpoint(int eventNumber)
+        private void DoCheckpoint(long eventNumber)
         {
             string tempPath = _snapshotBasePath + TempDirectoryName;
             Directory.CreateDirectory(tempPath);

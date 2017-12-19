@@ -2,9 +2,8 @@
 using System.Collections.Concurrent;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Security.AccessControl;
-using System.Security.Principal;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Timers;
 using CR.MessageDispatch.Core;
 using EventStore.ClientAPI;
@@ -19,8 +18,8 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         {
             public string StreamName { get; private set; }
             public int EventsProcessed { get; private set; }
-            public int StartPosition { get; private set; }
-            public int TotalEvents { get; private set; }
+            public long StartPosition { get; private set; }
+            public long TotalEvents { get; private set; }
 
             public decimal StreamPercentage
             {
@@ -33,7 +32,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             }
 
 
-            public CatchupProgress(int eventsProcessed, int startPosition, string streamName, int totalEvents)
+            public CatchupProgress(int eventsProcessed, long startPosition, string streamName, long totalEvents)
             {
                 EventsProcessed = eventsProcessed;
                 StartPosition = startPosition;
@@ -52,7 +51,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         private IEventStoreConnection _connection;
         private IDispatcher<ResolvedEvent> _dispatcher;
 
-        private int? _startingPosition;
+        private long? _startingPosition;
         private object _subscription;
         private object _subscriptionLock = new object();
         private string _streamName;
@@ -62,7 +61,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         private readonly string _heartbeatStreamName = "SubscriberHeartbeat-" + Guid.NewGuid();
         private readonly string _heartbeatEventType = "SubscriberHeartbeat";
         private TimeSpan _heartbeatTimeout;
-        private int? _lastReceivedEventNumber;
+        private long? _lastReceivedEventNumber;
         private bool _liveOnly;
 
         private readonly Timer _liveProcessingTimer = new Timer(10 * 60 * 1000);
@@ -332,11 +331,10 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         }
 
         private bool _catchingUp = true;
-        private int _lastNonLiveEventNumber = Int32.MinValue;
-        private int _lastDispatchedEventNumber;
+        private long _lastNonLiveEventNumber = long.MinValue;
+        private long _lastDispatchedEventNumber;
 
-        private void EventAppeared(object eventStoreCatchUpSubscription,
-            ResolvedEvent resolvedEvent)
+        private async Task EventAppeared(object eventStoreCatchUpSubscription, ResolvedEvent resolvedEvent)
         {
             if (resolvedEvent.Event != null && resolvedEvent.Event.EventType == _heartbeatEventType)
             {
