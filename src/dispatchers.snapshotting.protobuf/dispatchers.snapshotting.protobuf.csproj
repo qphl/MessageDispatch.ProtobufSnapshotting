@@ -4,6 +4,14 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>CR.MessageDispatch.Dispatchers.Snapshotting.Protobuf</AssemblyName>
     <RootNamespace>CR.MessageDispatch.Dispatchers.Snapshotting.Protobuf</RootNamespace>
+    <Authors>Cognisant</Authors>
+    <Company>Cognisant</Company>
+    <Copyright>Cognisant 2018</Copyright>
+    <PackageLicenseUrl>https://github.com/cognisant/cr-message-dispatch/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/cognisant/cr-message-dispatch</PackageProjectUrl>
+    <PackageIconUrl>https://github.com/cognisant/cr-message-dispatch/blob/master/logo.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/cognisant/cr-message-dispatch</RepositoryUrl>
+    <PackageTags>Message Dispatching, Event Sourcing</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
