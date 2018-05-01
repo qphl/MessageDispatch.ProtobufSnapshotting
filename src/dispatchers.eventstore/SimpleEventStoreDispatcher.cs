@@ -1,18 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using CR.MessageDispatch.Core;
-using EventStore.ClientAPI;
-using Newtonsoft.Json;
+﻿// <copyright file="SimpleEventStoreDispatcher.cs" company="Cognisant">
+// Copyright (c) Cognisant. All rights reserved.
+// </copyright>
 
 namespace CR.MessageDispatch.Dispatchers.EventStore
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Text;
+    using Core;
+    using global::EventStore.ClientAPI;
+    using Newtonsoft.Json;
+
     public class SimpleEventStoreDispatcher : DeserializingMessageDispatcher<ResolvedEvent, Type>
     {
-        private readonly Dictionary<String, Type> _eventTypeMapping;
+        private readonly Dictionary<string, Type> _eventTypeMapping;
         private readonly JsonSerializerSettings _serializerSettings;
 
-        public SimpleEventStoreDispatcher(IMessageHandlerLookup<Type> handlers, Dictionary<string, Type> eventTypeMapping, JsonSerializerSettings serializerSettings = null) : base(handlers)
+        public SimpleEventStoreDispatcher(IMessageHandlerLookup<Type> handlers, Dictionary<string, Type> eventTypeMapping, JsonSerializerSettings serializerSettings = null)
+            : base(handlers)
         {
             _eventTypeMapping = eventTypeMapping;
             _serializerSettings = serializerSettings ?? new JsonSerializerSettings();

@@ -1,14 +1,19 @@
-﻿using System;
-using System.Text;
-using CR.MessageDispatch.Core;
-using EventStore.ClientAPI;
-using Newtonsoft.Json.Linq;
+﻿// <copyright file="EventStoreJObjectDispatcher.cs" company="Cognisant">
+// Copyright (c) Cognisant. All rights reserved.
+// </copyright>
 
 namespace CR.MessageDispatch.Dispatchers.EventStore
 {
+    using System;
+    using System.Text;
+    using Core;
+    using global::EventStore.ClientAPI;
+    using Newtonsoft.Json.Linq;
+
     public class EventStoreJObjectDispatcher : DeserializingMessageDispatcher<ResolvedEvent, string>
     {
-        public EventStoreJObjectDispatcher(IMessageHandlerLookup<string> handlers) : base(handlers)
+        public EventStoreJObjectDispatcher(IMessageHandlerLookup<string> handlers)
+            : base(handlers)
         {
         }
 
@@ -24,7 +29,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
             try
             {
-                deserialized = JObject.Parse(Encoding.UTF8.GetString(rawMessage.Event.Data)); 
+                deserialized = JObject.Parse(Encoding.UTF8.GetString(rawMessage.Event.Data));
                 return true;
             }
             catch (Exception)
