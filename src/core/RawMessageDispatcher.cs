@@ -1,14 +1,19 @@
-﻿using System;
+﻿// <copyright file="RawMessageDispatcher.cs" company="Cognisant">
+// Copyright (c) Cognisant. All rights reserved.
+// </copyright>
 
 namespace CR.MessageDispatch.Core
 {
+    using System;
+
     /// <summary>
     /// A Deserializing message handler with no actual deserialization, just passes things through
     /// </summary>
     /// <typeparam name="TMessage"></typeparam>
     public class RawMessageDispatcher<TMessage> : DeserializingMessageDispatcher<TMessage, Type>
     {
-        public RawMessageDispatcher(IMessageHandlerLookup<Type> handlers) : base(handlers)
+        public RawMessageDispatcher(IMessageHandlerLookup<Type> handlers)
+            : base(handlers)
         {
         }
 
@@ -23,6 +28,5 @@ namespace CR.MessageDispatch.Core
             deserialized = rawMessage;
             return true;
         }
-
     }
 }

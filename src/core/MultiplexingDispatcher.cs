@@ -1,8 +1,12 @@
-﻿namespace CR.MessageDispatch.Core
+﻿// <copyright file="MultiplexingDispatcher.cs" company="Cognisant">
+// Copyright (c) Cognisant. All rights reserved.
+// </copyright>
+
+namespace CR.MessageDispatch.Core
 {
     public class MultiplexingDispatcher<TMessage> : IDispatcher<TMessage>
     {
-        private readonly IDispatcher<TMessage>[] _dispatchers; 
+        private readonly IDispatcher<TMessage>[] _dispatchers;
 
         public MultiplexingDispatcher(params IDispatcher<TMessage>[] dispatchers)
         {
@@ -11,8 +15,10 @@
 
         public void Dispatch(TMessage message)
         {
-            foreach(var dispatcher in _dispatchers)
+            foreach (var dispatcher in _dispatchers)
+            {
                 dispatcher.Dispatch(message);
+            }
         }
     }
 }

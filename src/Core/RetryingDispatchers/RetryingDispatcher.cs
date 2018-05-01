@@ -1,31 +1,49 @@
-﻿using System;
-using System.Threading;
+﻿// <copyright file="RetryingDispatcher.cs" company="Cognisant">
+// Copyright (c) Cognisant. All rights reserved.
+// </copyright>
 
 namespace CR.MessageDispatch.Core
 {
+    using System;
+    using System.Threading;
+
+    /// <summary>
+    /// Dispatcher that retries on an exception.
+    /// </summary>
+    /// <typeparam name="TMessage">Message Type</typeparam>
     public abstract class RetryingDispatcher<TMessage> : IDispatcher<TMessage>
     {
-        public enum RetryDecision
-        {
-            Fail,
-            Retry,
-            Ignore
-        }
-
         private readonly int? _retryLimit;
         private readonly IDispatcher<TMessage> _dispatcher;
-        private readonly Action<string,Exception> _retryLogAction;
+        private readonly Action<string, Exception> _retryLogAction;
         private readonly Func<Exception, RetryDecision> _decide;
 
-        protected RetryingDispatcher(IDispatcher<TMessage> dispatcher, int? retryLimit,
-            Action<string, Exception> retryLogAction = null, Func<Exception, RetryDecision> decide = null)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RetryingDispatcher{TMessage}"/> class.
+        /// </summary>
+        /// <param name="dispatcher">Dispatcher</param>
+        /// <param name="retryLimit">nullable retry limit.</param>
+        /// <param name="retryLogAction">Action to perform on every retry.</param>
+        /// <param name="decide">Function to decide on if a retry should happen or not.</param>
+        protected RetryingDispatcher(IDispatcher<TMessage> dispatcher, int? retryLimit, Action<string, Exception> retryLogAction = null, Func<Exception, RetryDecision> decide = null)
         {
             _retryLimit = retryLimit;
-            _retryLogAction = retryLogAction ?? ((_, __) => { });
+            _retryLogAction = retryLogAction ?? ((_, e) => { });
             _decide = decide ?? (_ => RetryDecision.Retry);
             _dispatcher = dispatcher;
         }
 
+        /// <summary>
+        /// Retry Decision enum.
+        /// </summary>
+        public enum RetryDecision
+        {
+            Fail,
+            Retry,
+            Ignore,
+        }
+
+        /// <inheritdoc />
         public void Dispatch(TMessage message)
         {
             var attempts = 1;
@@ -65,43 +83,15 @@ namespace CR.MessageDispatch.Core
                     Thread.Sleep(retryIn);
                     attempts++;
                 }
-            } while (true);
+            }
+            while (true);
         }
 
+        /// <summary>
+        /// Calculates the next retry interval.
+        /// </summary>
+        /// <param name="attempt">Amount of attempts.</param>
+        /// <returns>Next retry interval</returns>
         public abstract TimeSpan RetryInterval(int attempt);
-    }
-
-    public class FixedRetryingDispatcher<TMessage> : RetryingDispatcher<TMessage>
-    {
-        private readonly TimeSpan _retryPeriod;
-
-        public FixedRetryingDispatcher(IDispatcher<TMessage> dispatcher, int? retryLimit, TimeSpan retryPeriod, Action<string, Exception> retryLogAction = null, Func<Exception, RetryDecision> decide = null) : base(dispatcher, retryLimit, retryLogAction, decide)
-        {
-            _retryPeriod = retryPeriod;
-        }
-
-        public override TimeSpan RetryInterval(int attempt)
-        {
-            return _retryPeriod;
-        }
-    }
-
-    public class ExponentialRetryingDispatcher<TMessage> : RetryingDispatcher<TMessage>
-    {
-        private readonly TimeSpan _retryPeriod;
-        private readonly double _exponentialMultiplier;
-
-        public ExponentialRetryingDispatcher(IDispatcher<TMessage> dispatcher, int? retryLimit, TimeSpan retryPeriod,
-            double exponentialMultiplier, Action<string, Exception> retryLogAction = null,
-            Func<Exception, RetryDecision> decide = null) : base(dispatcher, retryLimit, retryLogAction, decide)
-        {
-            _retryPeriod = retryPeriod;
-            _exponentialMultiplier = exponentialMultiplier;
-        }
-
-        public override TimeSpan RetryInterval(int attempt)
-        {
-            return TimeSpan.FromMilliseconds(_retryPeriod.Milliseconds * Math.Pow(attempt, _exponentialMultiplier));
-        }
     }
 }

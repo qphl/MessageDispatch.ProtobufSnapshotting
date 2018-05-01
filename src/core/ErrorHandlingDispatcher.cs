@@ -1,7 +1,11 @@
-﻿using System;
+﻿// <copyright file="ErrorHandlingDispatcher.cs" company="Cognisant">
+// Copyright (c) Cognisant. All rights reserved.
+// </copyright>
 
 namespace CR.MessageDispatch.Core
 {
+    using System;
+
     /// <summary>
     /// A dispatcher to call an action/function on an error and rethrow the exception if required.
     /// </summary>
@@ -12,6 +16,7 @@ namespace CR.MessageDispatch.Core
         private readonly Func<TMessage, Exception, bool> _onError;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ErrorHandlingDispatcher{TMessage}"/> class.
         /// Constructor for setting a function to determine if the exception should be rethrown.
         /// </summary>
         /// <param name="dispatcher">The dispatcher to wrap.</param>
@@ -24,6 +29,7 @@ namespace CR.MessageDispatch.Core
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ErrorHandlingDispatcher{TMessage}"/> class.
         /// Constructor for always setting if the exception should be rethrown after the onError action.
         /// </summary>
         /// <param name="dispatcher">The dispatcher to wrap.</param>
@@ -39,6 +45,7 @@ namespace CR.MessageDispatch.Core
             };
         }
 
+        /// <inheritdoc />
         public void Dispatch(TMessage message)
         {
             try

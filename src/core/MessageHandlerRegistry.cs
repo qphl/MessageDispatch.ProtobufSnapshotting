@@ -1,12 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿// <copyright file="MessageHandlerRegistry.cs" company="Cognisant">
+// Copyright (c) Cognisant. All rights reserved.
+// </copyright>
 
 namespace CR.MessageDispatch.Core
 {
+    using System;
+    using System.Collections.Generic;
+
     public class MessageHandlerRegistry<TKey> : IMessageHandlerRegistration<TKey>, IMessageHandlerLookup<TKey>
     {
-        private Dictionary<TKey, List<object>> _eventHandlers = new Dictionary<TKey,List<object>>();
+        private Dictionary<TKey, List<object>> _eventHandlers = new Dictionary<TKey, List<object>>();
 
         public void Add(TKey messageType, object handler)
         {
@@ -38,24 +41,6 @@ namespace CR.MessageDispatch.Core
             var hasHandlerList = _eventHandlers.TryGetValue(messageType, out handlerList);
 
             return hasHandlerList ? handlerList : new List<object>();
-        }
-    }
-
-    public static class MessageHandlerRegistryExtensions
-    {
-        /// <summary>
-        /// Adds based on all the IConsume interfaces that this object implements
-        /// </summary>
-        public static void AddByConvention(this MessageHandlerRegistry<Type> registry, object handler)
-        {
-            var handlerType = handler.GetType();
-
-            var handlerInterfaces = handlerType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IConsume<>)).ToArray();
-
-            foreach (var messageType in handlerInterfaces.Select(i => i.GetGenericArguments()[0]))
-            {
-                registry.Add(messageType, handler);
-            }
         }
     }
 }

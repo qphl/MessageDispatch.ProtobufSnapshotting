@@ -1,13 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
+﻿// <copyright file="TransactionalDispatcher.cs" company="Cognisant">
+// Copyright (c) Cognisant. All rights reserved.
+// </copyright>
 
 namespace CR.MessageDispatch.Core
 {
-    public class TransactionalDispatcher<TMessage>:IDispatcher<TMessage>
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Transactions;
+
+    public class TransactionalDispatcher<TMessage> : IDispatcher<TMessage>
     {
         private readonly IDispatcher<TMessage> _dispatcher;
 
