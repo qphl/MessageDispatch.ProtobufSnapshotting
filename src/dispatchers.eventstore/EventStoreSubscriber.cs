@@ -13,6 +13,9 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
     using global::EventStore.ClientAPI;
     using Timer = System.Timers.Timer;
 
+    /// <summary>
+    /// Subscriber for event store.
+    /// </summary>
     public class EventStoreSubscriber
     {
         private readonly WriteThroughFileCheckpoint _checkpoint;
@@ -45,6 +48,19 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         private long _lastNonLiveEventNumber = long.MinValue;
         private long _lastDispatchedEventNumber;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EventStoreSubscriber"/> class
+        /// </summary>
+        /// <param name="connection">Eventstore connection.</param>
+        /// <param name="dispatcher">Dispatcher</param>
+        /// <param name="streamName">Stream name to push events into</param>
+        /// <param name="logger">Logger.</param>
+        /// <param name="startingPosition">Starting Position.</param>
+        /// <param name="catchUpPageSize">Catchup page size.</param>
+        /// <param name="upperQueueBound">Upper Queue Bound</param>
+        /// <param name="heartbeatFrequency">Frequency of heartbeat.</param>
+        /// <param name="heartbeatTimeout">Timeout of heartbeat</param>
+        /// <param name="maxLiveQueueSize">Maximum size of the live queue</param>
         [Obsolete("Please use new static method CreateCatchUpSubscirptionFromPosition, this constructor will be removed in the future.")]
         public EventStoreSubscriber(
             IEventStoreConnection connection,
@@ -61,6 +77,19 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             Init(connection, dispatcher, streamName, logger, heartbeatFrequency, heartbeatTimeout, startingPosition, catchUpPageSize, upperQueueBound, maxLiveQueueSize);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EventStoreSubscriber"/> class.
+        /// </summary>
+        /// <param name="connection">Eventstore connection.</param>
+        /// <param name="dispatcher">Dispatcher</param>
+        /// <param name="streamName">Stream name to push events into</param>
+        /// <param name="logger">Logger.</param>
+        /// <param name="checkpointFilePath">Path of the checkpoint file.</param>
+        /// <param name="catchupPageSize">Catchup page size.</param>
+        /// <param name="upperQueueBound">Upper Queue Bound</param>
+        /// <param name="heartbeatFrequency">Frequency of heartbeat.</param>
+        /// <param name="heartbeatTimeout">Timeout of heartbeat</param>
+        /// <param name="maxLiveQueueSize">Maximum size of the live queue</param>
         [Obsolete("Please use new static method CreateCatchupSubscriptionUsingCheckpoint, this constructor will be removed in the future.")]
         public EventStoreSubscriber(
             IEventStoreConnection connection,
@@ -99,6 +128,9 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             Init(connection, dispatcher, streamName, logger, heartbeatFrequency, heartbeatTImeout, upperQueueBound: upperQueueBound, liveOnly: true);
         }
 
+        /// <summary>
+        /// Gets a new catchup progress object.
+        /// </summary>
         public CatchupProgress CatchUpPercentage
         {
             get
@@ -111,8 +143,22 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the view model is ready or not.
+        /// </summary>
         public bool ViewModelsReady => !_catchingUp && (_lastDispatchedEventNumber >= _lastNonLiveEventNumber);
 
+        /// <summary>
+        /// Creates a live eventstore subscription.
+        /// </summary>
+        /// <param name="connection">Eventstore connection.</param>
+        /// <param name="dispatcher">Dispatcher</param>
+        /// <param name="streamName">Stream name to push events into</param>
+        /// <param name="logger">Logger.</param>
+        /// <param name="upperQueueBound">Upper Queue Bound</param>
+        /// <param name="heartbeatFrequency">Frequency of heartbeat.</param>
+        /// <param name="heartbeatTimeout">Timeout of heartbeat</param>
+        /// <returns>A new EventStoreSubscriber object.</returns>
         public static EventStoreSubscriber CreateLiveSubscription(
             IEventStoreConnection connection,
             IDispatcher<ResolvedEvent> dispatcher,
@@ -120,11 +166,25 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             ILogger logger,
             int upperQueueBound = 2048,
             TimeSpan? heartbeatFrequency = null,
-            TimeSpan? heartbeatTImeout = null)
+            TimeSpan? heartbeatTimeout = null)
         {
-            return new EventStoreSubscriber(connection, dispatcher, streamName, logger, upperQueueBound, heartbeatFrequency, heartbeatTImeout);
+            return new EventStoreSubscriber(connection, dispatcher, streamName, logger, upperQueueBound, heartbeatFrequency, heartbeatTimeout);
         }
 
+        /// <summary>
+        /// Creates an eventstore catchup subscription using a checkpoint file.
+        /// </summary>
+        /// <param name="connection">Eventstore connection.</param>
+        /// <param name="dispatcher">Dispatcher</param>
+        /// <param name="streamName">Stream name to push events into</param>
+        /// <param name="logger">Logger.</param>
+        /// <param name="checkpointFilePath">Path of the checkpoint file.</param>
+        /// <param name="catchupPageSize">Catchup page size.</param>
+        /// <param name="upperQueueBound">Upper Queue Bound</param>
+        /// <param name="heartbeatFrequency">Frequency of heartbeat.</param>
+        /// <param name="heartbeatTimeout">Timeout of heartbeat</param>
+        /// <param name="maxLiveQueueSize">Maximum size of the live queue</param>
+        /// <returns>A new EventStoreSubscriber object.</returns>
         public static EventStoreSubscriber CreateCatchupSubscriptionUsingCheckpoint(
             IEventStoreConnection connection,
             IDispatcher<ResolvedEvent> dispatcher,
@@ -140,6 +200,20 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             return new EventStoreSubscriber(connection, dispatcher, logger, streamName, checkpointFilePath, catchupPageSize, upperQueueBound, heartbeatFrequency, heartbeatTimeout, maxLiveQueueSize);
         }
 
+        /// <summary>
+        /// Creates an ecventstore catchup subscription from a position.
+        /// </summary>
+        /// <param name="connection">Eventstore connection.</param>
+        /// <param name="dispatcher">Dispatcher</param>
+        /// <param name="streamName">Stream name to push events into</param>
+        /// <param name="logger">Logger.</param>
+        /// <param name="startingPosition">Starting Position.</param>
+        /// <param name="catchupPageSize">Catchup page size.</param>
+        /// <param name="upperQueueBound">Upper Queue Bound</param>
+        /// <param name="heartbeatFrequency">Frequency of heartbeat.</param>
+        /// <param name="heartbeatTimeout">Timeout of heartbeat</param>
+        /// <param name="maxLiveQueueSize">Maximum size of the live queue</param>
+        /// <returns>A new EventStoreSubscriber object.</returns>
         public static EventStoreSubscriber CreateCatchupSubscriptionFromPosition(
             IEventStoreConnection connection,
             IDispatcher<ResolvedEvent> dispatcher,
@@ -155,11 +229,18 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             return new EventStoreSubscriber(connection, dispatcher, streamName, logger, startingPosition, catchupPageSize, upperQueueBound, heartbeatFrequency, heartbeatTimeout, maxLiveQueueSize);
         }
 
+        /// <summary>
+        /// Sends an event to the heartbeat stream
+        /// </summary>
         public void SendHeartbeat()
         {
             _connection.AppendToStreamAsync(_heartbeatStreamName, ExpectedVersion.Any, new EventData(Guid.NewGuid(), _heartbeatEventType, false, new byte[0], new byte[0])).Wait();
         }
 
+        /// <summary>
+        /// Start the subscriber.
+        /// </summary>
+        /// <param name="restart">Starting from a restart.</param>
         public void Start(bool restart = false)
         {
             if (_usingHeartbeats)
@@ -194,6 +275,9 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             }
         }
 
+        /// <summary>
+        /// Shut down the subscription.
+        /// </summary>
         public void ShutDown()
         {
             lock (_subscriptionLock)
@@ -282,7 +366,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
             if (_lastHeartbeat < DateTime.UtcNow.Subtract(_heartbeatTimeout))
             {
-                _logger.Error(string.Format("Subscriber heartbeat timeout, last heartbeat: {0} restarting subscription", _lastHeartbeat.ToString("G")));
+                _logger.Error($"Subscriber heartbeat timeout, last heartbeat: {_lastHeartbeat:G} restarting subscription");
                 RestartSubscription();
             }
         }

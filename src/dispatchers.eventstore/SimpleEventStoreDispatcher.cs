@@ -11,11 +11,20 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
     using global::EventStore.ClientAPI;
     using Newtonsoft.Json;
 
+    /// <summary>
+    /// A simple event store dispatcher.
+    /// </summary>
     public class SimpleEventStoreDispatcher : DeserializingMessageDispatcher<ResolvedEvent, Type>
     {
         private readonly Dictionary<string, Type> _eventTypeMapping;
         private readonly JsonSerializerSettings _serializerSettings;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SimpleEventStoreDispatcher"/> class.
+        /// </summary>
+        /// <param name="handlers">Message handler lookup of a type.</param>
+        /// <param name="eventTypeMapping">Event Type Map</param>
+        /// <param name="serializerSettings">Json Serializer settings.</param>
         public SimpleEventStoreDispatcher(IMessageHandlerLookup<Type> handlers, Dictionary<string, Type> eventTypeMapping, JsonSerializerSettings serializerSettings = null)
             : base(handlers)
         {
@@ -23,12 +32,14 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             _serializerSettings = serializerSettings ?? new JsonSerializerSettings();
         }
 
+        /// <inheritdoc />
         protected override bool TryGetMessageType(ResolvedEvent rawMessage, out Type type)
         {
             var eventType = rawMessage.Event.EventType;
             return _eventTypeMapping.TryGetValue(eventType, out type);
         }
 
+        /// <inheritdoc />
         protected override bool TryDeserialize(Type messageType, ResolvedEvent rawMessage, out object deserialized)
         {
             deserialized = null;

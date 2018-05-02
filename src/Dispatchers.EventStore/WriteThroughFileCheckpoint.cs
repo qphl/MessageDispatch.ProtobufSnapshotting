@@ -10,6 +10,9 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
     using System.Threading;
     using Microsoft.Win32.SafeHandles;
 
+    /// <summary>
+    /// Writes a checkpoint to file (pulled from event store)
+    /// </summary>
     internal class WriteThroughFileCheckpoint
     {
         private readonly string _filename;
@@ -23,16 +26,32 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         private long _lastFlushed;
         private FileStream _stream;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WriteThroughFileCheckpoint"/> class.
+        /// </summary>
+        /// <param name="filename">Checkpoint filename.</param>
         public WriteThroughFileCheckpoint(string filename)
             : this(filename, Guid.NewGuid().ToString(), false)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WriteThroughFileCheckpoint"/> class.
+        /// </summary>
+        /// <param name="filename">Checkpoint filename.</param>
+        /// <param name="name">Checkpoint name.</param>
         public WriteThroughFileCheckpoint(string filename, string name)
             : this(filename, name, false)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WriteThroughFileCheckpoint"/> class.
+        /// </summary>
+        /// <param name="filename">Checkpoint filename.</param>
+        /// <param name="name">Checkpoint name.</param>
+        /// <param name="cached">Chached?</param>
+        /// <param name="initValue">Initial value.</param>
         public WriteThroughFileCheckpoint(string filename, string name, bool cached, long initValue = 0)
         {
             _filename = filename;
@@ -64,11 +83,17 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             _last = _lastFlushed = ReadCurrent();
         }
 
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
         public string Name
         {
             get { return _name; }
         }
 
+        /// <summary>
+        /// Closes the checkpoint file stream.
+        /// </summary>
         public void Close()
         {
             Flush();
@@ -76,11 +101,18 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             _stream.Dispose();
         }
 
+        /// <summary>
+        /// Writes the checkpoint.
+        /// </summary>
+        /// <param name="checkpoint">New checkpoint.</param>
         public void Write(long checkpoint)
         {
             Interlocked.Exchange(ref _last, checkpoint);
         }
 
+        /// <summary>
+        /// Flushes the checkpoint streams.
+        /// </summary>
         public void Flush()
         {
             _memStream.Seek(0, SeekOrigin.Begin);
@@ -94,16 +126,27 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             // FlushFileBuffers(_file.SafeMemoryMappedFileHandle.DangerousGetHandle());
         }
 
+        /// <summary>
+        /// Reads the current checkpoint.
+        /// </summary>
+        /// <returns>Current checkpoint.</returns>
         public long Read()
         {
             return _cached ? Interlocked.Read(ref _lastFlushed) : ReadCurrent();
         }
 
+        /// <summary>
+        /// Reads non flushed checkpoint.
+        /// </summary>
+        /// <returns>Current nonflushed checkpoint.</returns>
         public long ReadNonFlushed()
         {
             return Interlocked.Read(ref _last);
         }
 
+        /// <summary>
+        /// Closes and disposes of the streams.
+        /// </summary>
         public void Dispose()
         {
             Close();

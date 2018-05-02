@@ -20,12 +20,18 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         private readonly JsonSerializerSettings _serializerSettings;
         private Dictionary<string, Type> _typeCache = new Dictionary<string, Type>();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EventStoreAggregateEventDispatcher"/> class.
+        /// </summary>
+        /// <param name="handlers">Message handler lookup of a type.</param>
+        /// <param name="serializerSettings">Json Serialization settings.</param>
         public EventStoreAggregateEventDispatcher(IMessageHandlerLookup<Type> handlers, JsonSerializerSettings serializerSettings = null)
             : base(handlers)
         {
             _serializerSettings = serializerSettings ?? new JsonSerializerSettings();
         }
 
+        /// <inheritdoc />
         protected override bool TryGetMessageType(ResolvedEvent rawMessage, out Type type)
         {
             type = null;
@@ -76,6 +82,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             }
         }
 
+        /// <inheritdoc />
         protected override bool TryDeserialize(Type messageType, ResolvedEvent rawMessage, out object deserialized)
         {
             deserialized = null;
