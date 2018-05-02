@@ -12,6 +12,9 @@ namespace CR.MessageDispatch.Dispatchers.Snapshotting.Protobuf
     using EventStore.ClientAPI;
     using ProtoBuf;
 
+    /// <summary>
+    /// Event Dispatcher that saves snapshots using protobuf.
+    /// </summary>
     public class ProtoBufSnapshottingResolvedEventDispatcher : ISnapshottingDispatcher<ResolvedEvent>
     {
         private const string TempDirectoryName = "tmp/";
@@ -22,6 +25,12 @@ namespace CR.MessageDispatch.Dispatchers.Snapshotting.Protobuf
         private string _snapshotBasePath;
         private int _catchupCheckpointCount;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProtoBufSnapshottingResolvedEventDispatcher"/> class.
+        /// </summary>
+        /// <param name="stateProvider">Function to provide a list of objects.</param>
+        /// <param name="snapshotBasePath">Base path of where the snapshots will be saved.</param>
+        /// <param name="snapshotVersion">Version of snapshot being saved.</param>
         public ProtoBufSnapshottingResolvedEventDispatcher(Func<IEnumerable<object>> stateProvider, string snapshotBasePath, string snapshotVersion)
         {
             _stateProvider = stateProvider;
@@ -46,14 +55,25 @@ namespace CR.MessageDispatch.Dispatchers.Snapshotting.Protobuf
             }
         }
 
+        /// <summary>
+        /// Gets or sets the inner dispatcher.
+        /// </summary>
         public IDispatcher<ResolvedEvent> InnerDispatcher { get; set; }
 
+        /// <summary>
+        /// Loads the last checkpoint.
+        /// </summary>
+        /// <returns>either null or the highest snapshot position.</returns>
         public int? LoadCheckpoint()
         {
             var pos = GetHighestSnapshotPosition();
             return pos == -1 ? (int?)null : pos;
         }
 
+        /// <summary>
+        /// Loads objects from the snapshot files if there are any.
+        /// </summary>
+        /// <returns>An IEnumerable of objects.</returns>
         public IEnumerable<object> LoadObjects()
         {
             var pos = GetHighestSnapshotPosition();
@@ -88,6 +108,7 @@ namespace CR.MessageDispatch.Dispatchers.Snapshotting.Protobuf
             }
         }
 
+        /// <inheritdoc />
         public void Dispatch(ResolvedEvent message)
         {
             if (message.Event.EventType.Equals("CheckpointRequested"))
