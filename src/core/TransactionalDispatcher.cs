@@ -4,22 +4,26 @@
 
 namespace CR.MessageDispatch.Core
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
     using System.Transactions;
 
+    /// <summary>
+    /// Transaction based dispatcher implementation.
+    /// </summary>
+    /// <typeparam name="TMessage">Message Type</typeparam>
     public class TransactionalDispatcher<TMessage> : IDispatcher<TMessage>
     {
         private readonly IDispatcher<TMessage> _dispatcher;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TransactionalDispatcher{TMessage}"/> class.
+        /// </summary>
+        /// <param name="dispatcher">Dispatcher of a certain message type.</param>
         public TransactionalDispatcher(IDispatcher<TMessage> dispatcher)
         {
             _dispatcher = dispatcher;
         }
 
+        /// <inheritdoc />
         public void Dispatch(TMessage message)
         {
             using (var transaction = new TransactionScope())

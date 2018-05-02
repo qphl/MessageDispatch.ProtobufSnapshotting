@@ -10,8 +10,8 @@ namespace CR.MessageDispatch.Core
     /// <inheritdoc />
     /// Specifically deserializes the message upon dispatch.
     /// </summary>
-    /// <typeparam name="TRaw"></typeparam>
-    /// <typeparam name="TLookupKey"></typeparam>
+    /// <typeparam name="TRaw">Raw Type</typeparam>
+    /// <typeparam name="TLookupKey">Lookup Key Type</typeparam>
     public abstract class DeserializingMessageDispatcher<TRaw, TLookupKey> : IDispatcher<TRaw>
     {
         /// <summary>
@@ -31,6 +31,9 @@ namespace CR.MessageDispatch.Core
         /// <returns>If the deserialization was successful or not.</returns>
         public delegate bool Deserializer(TRaw rawMessage, out object deserialized);
 
+        /// <summary>
+        /// Gets the IMessageHandlerLookups that were set on initialisation.
+        /// </summary>
         protected IMessageHandlerLookup<TLookupKey> Handlers { get; }
 
         /// <inheritdoc />
