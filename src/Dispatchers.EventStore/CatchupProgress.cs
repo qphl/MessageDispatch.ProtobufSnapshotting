@@ -57,7 +57,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         /// </summary>
         public decimal CatchupPercentage
         {
-            get { return (decimal)EventsProcessed / (TotalEvents - StartPosition) * 100; }
+            get { return EventsProcessed == 0 ? 0.0m : (decimal)EventsProcessed / (TotalEvents - StartPosition) * 100; }
         }
 
         /// <summary>
