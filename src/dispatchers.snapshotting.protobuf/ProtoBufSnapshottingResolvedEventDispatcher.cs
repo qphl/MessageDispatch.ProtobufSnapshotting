@@ -8,7 +8,7 @@ namespace CR.MessageDispatch.Dispatchers.Snapshotting.Protobuf
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using CR.MessageDispatch.Core;
+    using Core;
     using EventStore.ClientAPI;
     using ProtoBuf;
 
@@ -21,8 +21,8 @@ namespace CR.MessageDispatch.Dispatchers.Snapshotting.Protobuf
         private const int ChunkSize = 52428800;
 
         private readonly Func<IEnumerable<object>> _stateProvider;
+        private readonly string _snapshotBasePath;
 
-        private string _snapshotBasePath;
         private int _catchupCheckpointCount;
 
         /// <summary>

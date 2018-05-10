@@ -27,38 +27,32 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         /// <summary>
         /// Gets the name of the stream.
         /// </summary>
-        public string StreamName { get; private set; }
+        public string StreamName { get; }
 
         /// <summary>
         /// Gets the amount of events processed.
         /// </summary>
-        public int EventsProcessed { get; private set; }
+        public int EventsProcessed { get; }
 
         /// <summary>
         /// Gets the starting position in the stream.
         /// </summary>
-        public long StartPosition { get; private set; }
+        public long StartPosition { get; }
 
         /// <summary>
         /// Gets the total events in the stream.
         /// </summary>
-        public long TotalEvents { get; private set; }
+        public long TotalEvents { get; }
 
         /// <summary>
         /// Gets the stream percentage.
         /// </summary>
-        public decimal StreamPercentage
-        {
-            get { return (((decimal)StartPosition + EventsProcessed) / TotalEvents) * 100; }
-        }
+        public decimal StreamPercentage => ((decimal)StartPosition + EventsProcessed) / TotalEvents * 100;
 
         /// <summary>
         /// Gets the catchup percentage.
         /// </summary>
-        public decimal CatchupPercentage
-        {
-            get { return EventsProcessed == 0 ? 0.0m : (decimal)EventsProcessed / (TotalEvents - StartPosition) * 100; }
-        }
+        public decimal CatchupPercentage => EventsProcessed == 0 ? 0.0m : (decimal)EventsProcessed / (TotalEvents - StartPosition) * 100;
 
         /// <summary>
         /// Generates a string based on the current catchup progress.

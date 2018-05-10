@@ -39,9 +39,7 @@ namespace CR.MessageDispatch.Core
         /// <inheritdoc />
         public virtual void Dispatch(TRaw message)
         {
-            var type = default(TLookupKey);
-
-            if (!TryGetMessageType(message, out type))
+            if (!TryGetMessageType(message, out var type))
             {
                 return;
             }

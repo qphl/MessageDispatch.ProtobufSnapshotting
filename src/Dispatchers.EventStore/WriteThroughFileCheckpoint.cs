@@ -15,16 +15,15 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
     /// </summary>
     internal class WriteThroughFileCheckpoint
     {
-        private readonly string _filename;
-        private readonly string _name;
+        private readonly FileStream _stream;
         private readonly bool _cached;
         private readonly BinaryWriter _writer;
         private readonly BinaryReader _reader;
         private readonly MemoryStream _memStream;
         private readonly byte[] _buffer;
+
         private long _last;
         private long _lastFlushed;
-        private FileStream _stream;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WriteThroughFileCheckpoint"/> class.
@@ -54,19 +53,18 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         /// <param name="initValue">Initial value.</param>
         public WriteThroughFileCheckpoint(string filename, string name, bool cached, long initValue = 0)
         {
-            _filename = filename;
-            _name = name;
+            Name = name;
             _cached = cached;
             _buffer = new byte[4096];
             _memStream = new MemoryStream(_buffer);
 
             var handle = Filenative.CreateFile(
-                _filename,
+                filename,
                 (uint)FileAccess.ReadWrite,
                 (uint)FileShare.ReadWrite,
                 IntPtr.Zero,
                 (uint)FileMode.OpenOrCreate,
-                Filenative.FILE_FLAG_NO_BUFFERING | (int)FileOptions.WriteThrough,
+                Filenative.FileFlagNoBuffering | (int)FileOptions.WriteThrough,
                 IntPtr.Zero);
 
             _stream = new FileStream(handle, FileAccess.ReadWrite, 4096);
@@ -86,10 +84,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         /// <summary>
         /// Gets the name.
         /// </summary>
-        public string Name
-        {
-            get { return _name; }
-        }
+        public string Name { get; }
 
         /// <summary>
         /// Closes the checkpoint file stream.
@@ -163,9 +158,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
         private static class Filenative
         {
-#pragma warning disable SA1310 // Field names should not contain underscore - Gets pulled from the eventstore DLLs
-            public const int FILE_FLAG_NO_BUFFERING = 0x20000000;
-#pragma warning restore SA1310 // Field names should not contain underscore
+            public const int FileFlagNoBuffering = 0x20000000;
 
             [DllImport("kernel32", SetLastError = true)]
             internal static extern SafeFileHandle CreateFile(

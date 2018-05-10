@@ -18,7 +18,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
     public class EventStoreAggregateEventDispatcher : DeserializingMessageDispatcher<ResolvedEvent, Type>
     {
         private readonly JsonSerializerSettings _serializerSettings;
-        private Dictionary<string, Type> _typeCache = new Dictionary<string, Type>();
+        private readonly Dictionary<string, Type> _typeCache = new Dictionary<string, Type>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EventStoreAggregateEventDispatcher"/> class.
@@ -53,8 +53,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
                 var typeString = (string)metadata["ClrType"];
 
-                Type cached = null;
-                if (!_typeCache.TryGetValue(typeString, out cached))
+                if (!_typeCache.TryGetValue(typeString, out var cached))
                 {
                     try
                     {
@@ -68,7 +67,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
                     _typeCache.Add(typeString, cached);
                 }
 
-                if (cached.Name.Equals("TypeNotFound"))
+                if (cached?.Name.Equals("TypeNotFound") ?? false)
                 {
                     return false;
                 }

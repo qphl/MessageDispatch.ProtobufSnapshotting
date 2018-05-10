@@ -18,9 +18,7 @@ namespace CR.MessageDispatch.Core
         /// <inheritdoc />
         public void Add(TKey messageType, object handler)
         {
-            List<object> handlerList;
-            var hasHandlerList = _eventHandlers.TryGetValue(messageType, out handlerList);
-
+            var hasHandlerList = _eventHandlers.TryGetValue(messageType, out var handlerList);
             if (!hasHandlerList)
             {
                 handlerList = new List<object>();
@@ -45,9 +43,7 @@ namespace CR.MessageDispatch.Core
         /// <inheritdoc />
         public List<object> HandlersForMessageType(TKey messageType)
         {
-            List<object> handlerList;
-            var hasHandlerList = _eventHandlers.TryGetValue(messageType, out handlerList);
-
+            var hasHandlerList = _eventHandlers.TryGetValue(messageType, out var handlerList);
             return hasHandlerList ? handlerList : new List<object>();
         }
     }
