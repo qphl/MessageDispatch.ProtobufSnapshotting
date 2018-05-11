@@ -2,12 +2,11 @@
 // Copyright (c) Cognisant. All rights reserved.
 // </copyright>
 
-using System.Linq;
-
 namespace CR.MessageDispatch.Dispatchers.EventStore
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Linq;
     using System.Threading;
     using System.Timers;
     using Core;
