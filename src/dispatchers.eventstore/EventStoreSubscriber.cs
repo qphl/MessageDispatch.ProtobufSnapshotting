@@ -241,6 +241,8 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
             lock (_subscriptionLock)
             {
+                KillSubscription();
+
                 if (_liveOnly)
                 {
                     _subscription = _connection.SubscribeToStreamAsync(_streamName, true, (s, e) => EventAppeared(e), SubscriptionDropped).Result;
@@ -273,13 +275,15 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         {
             lock (_subscriptionLock)
             {
-                if (_liveOnly)
+                switch (_subscription)
                 {
-                    ((EventStoreSubscription)_subscription).Close();
-                }
-                else
-                {
-                    ((EventStoreCatchUpSubscription)_subscription).Stop(TimeSpan.FromSeconds(1));
+                    case EventStoreSubscription liveSubscription:
+                        liveSubscription.Close();
+                        break;
+                    case EventStoreCatchUpSubscription catchupSubscription:
+                        catchupSubscription.Stop();
+                        break;
+                    default: return;
                 }
             }
         }
@@ -357,20 +361,20 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
             lock (_subscriptionLock)
             {
-                if (_liveOnly)
-                {
-                    ((EventStoreSubscription)_subscription).Close();
-                }
-                else
-                {
-                    ((EventStoreCatchUpSubscription)_subscription).Stop();
-                }
+                KillSubscription();
 
-                _subscription = null;
-                _catchingUp = true;
-                _lastNonLiveEventNumber = int.MinValue;
                 _startingPosition = _lastReceivedEventNumber;
+                _lastNonLiveEventNumber = int.MinValue;
+                _catchingUp = true;
                 Start(true);
+            }
+
+            lock (_liveProcessingTimer)
+            {
+                if (!_liveProcessingTimer.Enabled)
+                {
+                    _liveProcessingTimer.Start();
+                }
             }
         }
 
@@ -402,21 +406,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
                 return;
             }
 
-            if (subscriptionDropReason == SubscriptionDropReason.ConnectionClosed)
-            {
-                _logger.Info("Not attempting to restart subscription on disposed connection. Subscription is dead.");
-                return;
-            }
-
             RestartSubscription();
-
-            lock (_liveProcessingTimer)
-            {
-                if (!_liveProcessingTimer.Enabled)
-                {
-                    _liveProcessingTimer.Start();
-                }
-            }
         }
 
         private void LiveProcessingStarted(EventStoreCatchUpSubscription eventStoreCatchUpSubscription)
@@ -471,6 +461,23 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             {
                 _logger.Error(ex, "Error dispatching event from Event Store subscriber ({0}/{1})", resolvedEvent.Event.EventStreamId, resolvedEvent.Event.EventNumber);
             }
+        }
+
+        private void KillSubscription()
+        {
+            switch (_subscription)
+            {
+                case EventStoreSubscription liveSubscription:
+                    liveSubscription.Dispose();
+                    break;
+                case EventStoreCatchUpSubscription catchUpSubscription:
+                    catchUpSubscription.Stop();
+                    break;
+                case null: break;
+                default: throw new InvalidOperationException("The event store subscription was invalid.");
+            }
+
+            _subscription = null;
         }
     }
 }
