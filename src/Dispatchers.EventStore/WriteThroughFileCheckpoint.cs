@@ -28,32 +28,11 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         /// <summary>
         /// Initializes a new instance of the <see cref="WriteThroughFileCheckpoint"/> class.
         /// </summary>
-        /// <param name="filename">Checkpoint filename.</param>
-        public WriteThroughFileCheckpoint(string filename)
-            : this(filename, Guid.NewGuid().ToString(), false)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WriteThroughFileCheckpoint"/> class.
-        /// </summary>
         /// <param name="filename">The file to write a checkpoint to.</param>
-        /// <param name="name">The name of the checkpoint to write.</param>
-        public WriteThroughFileCheckpoint(string filename, string name)
-            : this(filename, name, false)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WriteThroughFileCheckpoint"/> class.
-        /// </summary>
-        /// <param name="filename">The file to write a checkpoint to.</param>
-        /// <param name="name">The name of the checkpoint to write.</param>
         /// <param name="cached">Indicates if the checkpoint has been cached.</param>
         /// <param name="initValue">The initial value to write.</param>
-        public WriteThroughFileCheckpoint(string filename, string name, bool cached, long initValue = 0)
+        public WriteThroughFileCheckpoint(string filename, bool cached, long initValue = 0)
         {
-            Name = name;
             _cached = cached;
             _buffer = new byte[4096];
             _memStream = new MemoryStream(_buffer);
@@ -79,21 +58,6 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             }
 
             _last = _lastFlushed = ReadCurrent();
-        }
-
-        /// <summary>
-        /// Gets the name.
-        /// </summary>
-        public string Name { get; }
-
-        /// <summary>
-        /// Closes the checkpoint file stream.
-        /// </summary>
-        public void Close()
-        {
-            Flush();
-            _stream.Close();
-            _stream.Dispose();
         }
 
         /// <summary>
@@ -129,26 +93,6 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         {
             return _cached ? Interlocked.Read(ref _lastFlushed) : ReadCurrent();
         }
-
-        /// <summary>
-        /// Reads non flushed checkpoint.
-        /// </summary>
-        /// <returns>Current nonflushed checkpoint.</returns>
-        public long ReadNonFlushed() // _last has always been flushed ??
-        {
-            return Interlocked.Read(ref _last);
-        }
-
-        /// <summary>
-        /// Closes and disposes of the streams.
-        /// </summary>
-        public void Dispose()
-        {
-            Close();
-        }
-
-        [DllImport("kernel32.dll")]
-        private static extern bool FlushFileBuffers(IntPtr hFile);
 
         private long ReadCurrent()
         {
