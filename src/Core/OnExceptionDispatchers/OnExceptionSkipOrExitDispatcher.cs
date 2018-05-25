@@ -7,9 +7,9 @@ namespace CR.MessageDispatch.Core
     using System;
 
     /// <summary>
-    /// Sets up a dispatcher which will either skip or exit when an exception is thrown.
+    /// A wrapping message dispatcher which will either skip or exit the application when an exception is thrown by its inner dispatcher.
     /// </summary>
-    /// <typeparam name="TMessage">Message Type</typeparam>
+    /// <typeparam name="TMessage">The type of message this dispatcher handles.</typeparam>
     public class OnExceptionSkipOrExitDispatcher<TMessage> : IDispatcher<TMessage>
     {
         private readonly IDispatcher<TMessage> _dispatcher;
@@ -19,9 +19,11 @@ namespace CR.MessageDispatch.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="OnExceptionSkipOrExitDispatcher{TMessage}"/> class.
         /// </summary>
-        /// <param name="dispatcher">Dispatcher to use.</param>
-        /// <param name="shouldExit">Should the dispatcher exit or skip.</param>
-        /// <param name="onExitLog">What should happen on exit.</param>
+        /// <param name="dispatcher">The inner dispatcher that this dispatcher will wrap.</param>
+        /// <param name="shouldExit">The <see cref="Func{TResult}"/> that determines what the application will do after the inner dispatcher throws an exception.
+        /// It should return <c>true</c> if the exception is fatal (to instruct the application to exit) and <c>false</c> to skip the current message and continue processing future messages.</param>
+        /// <param name="onExitLog">An action that will be executed after the inner dispatcher throws a fatal exception (indicated by <see cref="_shouldExit"/>), before the application exits.
+        /// This can be used to log the exception.</param>
         public OnExceptionSkipOrExitDispatcher(
             IDispatcher<TMessage> dispatcher,
             Func<TMessage, Exception, bool> shouldExit,

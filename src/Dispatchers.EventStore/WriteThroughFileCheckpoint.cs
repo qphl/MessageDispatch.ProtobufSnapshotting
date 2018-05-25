@@ -11,7 +11,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
     using Microsoft.Win32.SafeHandles;
 
     /// <summary>
-    /// Writes a checkpoint to file (pulled from event store)
+    /// Writes a checkpoint to a file pulled from event store.
     /// </summary>
     internal class WriteThroughFileCheckpoint
     {
@@ -37,8 +37,8 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         /// <summary>
         /// Initializes a new instance of the <see cref="WriteThroughFileCheckpoint"/> class.
         /// </summary>
-        /// <param name="filename">Checkpoint filename.</param>
-        /// <param name="name">Checkpoint name.</param>
+        /// <param name="filename">The file to write a checkpoint to.</param>
+        /// <param name="name">The name of the checkpoint to write.</param>
         public WriteThroughFileCheckpoint(string filename, string name)
             : this(filename, name, false)
         {
@@ -47,10 +47,10 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         /// <summary>
         /// Initializes a new instance of the <see cref="WriteThroughFileCheckpoint"/> class.
         /// </summary>
-        /// <param name="filename">Checkpoint filename.</param>
-        /// <param name="name">Checkpoint name.</param>
-        /// <param name="cached">Chached?</param>
-        /// <param name="initValue">Initial value.</param>
+        /// <param name="filename">The file to write a checkpoint to.</param>
+        /// <param name="name">The name of the checkpoint to write.</param>
+        /// <param name="cached">Indicates if the checkpoint has been cached.</param>
+        /// <param name="initValue">The initial value to write.</param>
         public WriteThroughFileCheckpoint(string filename, string name, bool cached, long initValue = 0)
         {
             Name = name;
@@ -99,7 +99,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         /// <summary>
         /// Writes the checkpoint.
         /// </summary>
-        /// <param name="checkpoint">New checkpoint.</param>
+        /// <param name="checkpoint">Represents the new checkpoint.</param>
         public void Write(long checkpoint)
         {
             Interlocked.Exchange(ref _last, checkpoint);
@@ -124,7 +124,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         /// <summary>
         /// Reads the current checkpoint.
         /// </summary>
-        /// <returns>Current checkpoint.</returns>
+        /// <returns>The current checkpoint.</returns>
         public long Read()
         {
             return _cached ? Interlocked.Read(ref _lastFlushed) : ReadCurrent();
@@ -134,7 +134,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         /// Reads non flushed checkpoint.
         /// </summary>
         /// <returns>Current nonflushed checkpoint.</returns>
-        public long ReadNonFlushed()
+        public long ReadNonFlushed() // _last has always been flushed ??
         {
             return Interlocked.Read(ref _last);
         }

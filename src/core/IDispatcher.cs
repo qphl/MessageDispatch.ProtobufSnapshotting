@@ -5,15 +5,15 @@
 namespace CR.MessageDispatch.Core
 {
     /// <summary>
-    /// Interface for the Dispatcher
+    /// A common interface for a message dispatcher.
     /// </summary>
-    /// <typeparam name="TMessage">Message type which will be dispatched</typeparam>
+    /// <typeparam name="TMessage">The type of message this dispatcher handles.</typeparam>
     public interface IDispatcher<in TMessage>
     {
         /// <summary>
-        /// Dispatching method for dispatching messages.
+        /// The method which controls dispatching messages.
         /// </summary>
-        /// <param name="message">Message to dispatch</param>
+        /// <param name="message">Represents a message for the dipatcher to attempt to process.</param>
         void Dispatch(TMessage message);
     }
 }

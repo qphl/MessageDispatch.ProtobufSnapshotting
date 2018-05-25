@@ -7,16 +7,16 @@ namespace CR.MessageDispatch.Core
     using System.Collections.Generic;
 
     /// <summary>
-    /// Interface for implementing the Message Handler Lookups
+    /// Interface for implementing a method to lookup the handler methods for a specific message type from a <see cref="MessageHandlerRegistry{TKey}"/>
     /// </summary>
-    /// <typeparam name="TKey">Key types.</typeparam>
+    /// <typeparam name="TKey">The type of message handler lookup keys the message handler can handle.</typeparam>
     public interface IMessageHandlerLookup<in TKey>
     {
         /// <summary>
-        /// Function to get the Handlers based on a message type.
+        /// Gets the handler methods for a specified message type.
         /// </summary>
-        /// <param name="messageType">Message Type we are getting the handlers of.</param>
-        /// <returns>A list of handlers.</returns>
+        /// <param name="messageType">The message type whose handler methods should be returned.</param>
+        /// <returns>A list of message handlers.</returns>
         List<object> HandlersForMessageType(TKey messageType);
     }
 }

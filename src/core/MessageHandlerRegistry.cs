@@ -8,7 +8,7 @@ namespace CR.MessageDispatch.Core
     using System.Collections.Generic;
 
     /// <summary>
-    /// Message Handler Rewgistry implementation.
+    /// A registry of message types and the methods which can be used to handle those types.
     /// </summary>
     /// <typeparam name="TKey">Key Type</typeparam>
     public class MessageHandlerRegistry<TKey> : IMessageHandlerRegistration<TKey>, IMessageHandlerLookup<TKey>

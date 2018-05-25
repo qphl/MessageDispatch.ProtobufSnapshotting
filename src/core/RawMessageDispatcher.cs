@@ -7,7 +7,7 @@ namespace CR.MessageDispatch.Core
     using System;
 
     /// <summary>
-    /// A Deserializing message handler with no actual deserialization, just passes things through
+    /// A message dispatcher which dispatches messages in the raw form in which they were passed to it. It does not perform any deserialization.
     /// </summary>
     /// <typeparam name="TMessage">Message Type</typeparam>
     public class RawMessageDispatcher<TMessage> : DeserializingMessageDispatcher<TMessage, Type>
@@ -15,7 +15,7 @@ namespace CR.MessageDispatch.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="RawMessageDispatcher{TMessage}"/> class.
         /// </summary>
-        /// <param name="handlers">Message handler lookup of a type</param>
+        /// <param name="handlers">Message handler methods (this parameter is not used).</param>
         public RawMessageDispatcher(IMessageHandlerLookup<Type> handlers)
             : base(handlers)
         {
@@ -28,7 +28,13 @@ namespace CR.MessageDispatch.Core
             return true;
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// A method which passes messages through it. It does not perform any deserialization.
+        /// </summary>
+        /// <param name="messageType">A message type (this parameter is not used).</param>
+        /// <param name="rawMessage">The message to pass through.</param>
+        /// <param name="deserialized">The object to output the raw message as.</param>
+        /// <returns><c>true</c></returns>
         protected override bool TryDeserialize(Type messageType, TMessage rawMessage, out object deserialized)
         {
             deserialized = rawMessage;

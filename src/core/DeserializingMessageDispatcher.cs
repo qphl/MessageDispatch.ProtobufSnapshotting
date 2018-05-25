@@ -8,27 +8,28 @@ namespace CR.MessageDispatch.Core
 
     /// <summary>
     /// <inheritdoc />
-    /// Specifically deserializes the message upon dispatch.
+    /// A message dispatcher which deserializes messages upon dispatch.
     /// </summary>
-    /// <typeparam name="TRaw">Raw Type</typeparam>
-    /// <typeparam name="TLookupKey">Lookup Key Type</typeparam>
+    /// <typeparam name="TRaw">The type of raw messages the disaptcher can handle.</typeparam>
+    /// <typeparam name="TLookupKey">The type of message handler lookup keys the dispatcher can handle.</typeparam>
     public abstract class DeserializingMessageDispatcher<TRaw, TLookupKey> : IDispatcher<TRaw>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DeserializingMessageDispatcher{TRaw, TLookupKey}"/> class.
         /// </summary>
-        /// <param name="handlers">Message handler lookups.</param>
+        /// <param name="handlers">The handler methods for processing messages with.</param>
         protected DeserializingMessageDispatcher(IMessageHandlerLookup<TLookupKey> handlers)
         {
             Handlers = handlers;
         }
 
         /// <summary>
-        /// Deserializes the raw message.
+        /// Deserializes raw messages.
         /// </summary>
-        /// <param name="rawMessage">Raw Message to be deserialized</param>
-        /// <param name="deserialized">Deserialized output.</param>
-        /// <returns>If the deserialization was successful or not.</returns>
+        /// <param name="rawMessage">Represents a raw message that should be deserialized.</param>
+        /// <param name="deserialized">An object with which the deserialized messaged is outputted.</param>
+        /// <returns>A boolean value indicating if the message was succesfully deserialized.
+        /// This will equal <c>true</c> if the message was succesfully deserialized.</returns>
         public delegate bool Deserializer(TRaw rawMessage, out object deserialized);
 
         /// <summary>
@@ -63,20 +64,22 @@ namespace CR.MessageDispatch.Core
         }
 
         /// <summary>
-        /// Attempts to get type of the raw message.
+        /// Gets the type of a raw message.
         /// </summary>
-        /// <param name="rawMessage">Raw Message</param>
-        /// <param name="type">Output of the type.</param>
-        /// <returns>If obtaining the type was successful or not.</returns>
+        /// <param name="rawMessage">The raw message which the method should return the type of.</param>
+        /// <param name="type">An object which can represent the raw messages's type.</param>
+        /// <returns>A boolean value indicating if the message's type was successfully determined.
+        /// This value will be <c>true</c> if the message's type was succesfully determined.</returns>
         protected abstract bool TryGetMessageType(TRaw rawMessage, out TLookupKey type);
 
         /// <summary>
-        /// Attempts to deserialize the raw message.
+        /// Deserializes raw messages.
         /// </summary>
-        /// <param name="messageType">Message Type</param>
-        /// <param name="rawMessage">Raw Message</param>
-        /// <param name="deserialized">Deserialized object.</param>
-        /// <returns>If the deserialization was successful or not.</returns>
+        /// <param name="messageType">The type of the message that should be deserialized.</param>
+        /// <param name="rawMessage">The raw message that should be deserialized.</param>
+        /// <param name="deserialized">An object with which the deserialized message can be outputted.</param>
+        /// <returns>A boolean value indicating if the message was successfully deserialized.
+        /// This value will be <c>true</c> if the raw message was successfully deserialized.</returns>
         protected abstract bool TryDeserialize(TLookupKey messageType, TRaw rawMessage, out object deserialized);
     }
 }

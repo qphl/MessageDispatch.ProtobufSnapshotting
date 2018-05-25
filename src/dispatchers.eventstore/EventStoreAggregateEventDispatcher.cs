@@ -13,7 +13,7 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
     using Newtonsoft.Json.Linq;
 
     /// <summary>
-    /// Deserializing dispatcher for events produced by CR.AggregateRepository
+    /// A deserializing event dispatcher for events produced by CR.AggregatRepository.
     /// </summary>
     public class EventStoreAggregateEventDispatcher : DeserializingMessageDispatcher<ResolvedEvent, Type>
     {
@@ -23,8 +23,8 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         /// <summary>
         /// Initializes a new instance of the <see cref="EventStoreAggregateEventDispatcher"/> class.
         /// </summary>
-        /// <param name="handlers">Message handler lookup of a type.</param>
-        /// <param name="serializerSettings">Json Serialization settings.</param>
+        /// <param name="handlers">The handler methods for processing messages with.</param>
+        /// <param name="serializerSettings">Determines the settings for the JSON serialization of events.</param>
         public EventStoreAggregateEventDispatcher(IMessageHandlerLookup<Type> handlers, JsonSerializerSettings serializerSettings = null)
             : base(handlers)
         {

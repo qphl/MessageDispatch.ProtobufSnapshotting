@@ -7,26 +7,26 @@ namespace CR.MessageDispatch.Core
     using System.Collections.Generic;
 
     /// <summary>
-    /// Interface for implementing a Snapshotting dispatcher.
+    /// An interface for implementing a wrapping message dispatcher that can take and load snapshots of application states.
     /// </summary>
     /// <typeparam name="TMessage">Message Type</typeparam>
     public interface ISnapshottingDispatcher<TMessage> : IDispatcher<TMessage>
     {
         /// <summary>
-        /// Gets or sets the Inner Dispatcher.
+        /// Gets or sets the inner dispatcher which the implementation of this interface will wrap.
         /// </summary>
         IDispatcher<TMessage> InnerDispatcher { get; set; }
 
         /// <summary>
-        /// Loads the latest checkout.
+        /// A method used to load the position of the most recent snapshot of the inner dispatcher.
         /// </summary>
-        /// <returns>Null or a checkpoint number.</returns>
+        /// <returns>Null, or an integer representing the current snapshot checkpoint.</returns>
         int? LoadCheckpoint();
 
         /// <summary>
-        /// Loads objects form the snapshot files.
+        /// A method used to load any objects from the snapshot files.
         /// </summary>
-        /// <returns>An enumerable list of objects.</returns>
+        /// <returns>An <see cref="IEnumerable{T}"/> of objects.</returns>
         IEnumerable<object> LoadObjects();
     }
 }

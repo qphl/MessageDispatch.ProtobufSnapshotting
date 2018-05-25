@@ -5,7 +5,8 @@
 namespace CR.MessageDispatch.Core
 {
     /// <summary>
-    /// Pulls multiple dispatchers into one multiplexing dispatcher.
+    /// A message dispatcher consisting of several other message dispatchers.
+    /// This dispatcher will attempt to process every message through each of its constituent dispatchers.
     /// </summary>
     /// <typeparam name="TMessage">Message Type</typeparam>
     public class MultiplexingDispatcher<TMessage> : IDispatcher<TMessage>
@@ -15,7 +16,7 @@ namespace CR.MessageDispatch.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="MultiplexingDispatcher{TMessage}"/> class.
         /// </summary>
-        /// <param name="dispatchers">Array of Dispatchers to multiplex</param>
+        /// <param name="dispatchers">The dispatchers to multiplex.</param>
         public MultiplexingDispatcher(params IDispatcher<TMessage>[] dispatchers)
         {
             _dispatchers = dispatchers;

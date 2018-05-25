@@ -5,15 +5,15 @@
 namespace CR.MessageDispatch.Core
 {
     /// <summary>
-    /// Consumer which takes in and handles messages.
+    /// A common interface for implementing a consumer which takes in and handles messages.
     /// </summary>
-    /// <typeparam name="TMessage">Message which will be consumed.</typeparam>
+    /// <typeparam name="TMessage">Represents the type of messages the consumer can handle.</typeparam>
     public interface IConsume<in TMessage>
     {
         /// <summary>
-        /// Handle method for processing messages.
+        /// The method for processing messages.
         /// </summary>
-        /// <param name="message">Message which will be handled.</param>
+        /// <param name="message">A message which should be handled.</param>
         void Handle(TMessage message);
     }
 }

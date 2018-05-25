@@ -7,7 +7,7 @@ namespace CR.MessageDispatch.Core
     using System.Transactions;
 
     /// <summary>
-    /// Transaction based dispatcher implementation.
+    /// A wrapping message dispatcher which creates a transaction for each of its dispatch attempts.
     /// </summary>
     /// <typeparam name="TMessage">Message Type</typeparam>
     public class TransactionalDispatcher<TMessage> : IDispatcher<TMessage>
@@ -17,7 +17,7 @@ namespace CR.MessageDispatch.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="TransactionalDispatcher{TMessage}"/> class.
         /// </summary>
-        /// <param name="dispatcher">Dispatcher of a certain message type.</param>
+        /// <param name="dispatcher">The inner dispatcher that this dispatcher will wrap.</param>
         public TransactionalDispatcher(IDispatcher<TMessage> dispatcher)
         {
             _dispatcher = dispatcher;

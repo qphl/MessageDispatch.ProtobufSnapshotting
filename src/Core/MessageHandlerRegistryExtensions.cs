@@ -8,15 +8,15 @@ namespace CR.MessageDispatch.Core
     using System.Linq;
 
     /// <summary>
-    /// Extenstion methods for the Message Handler Registry
+    /// Extension methods for a <see cref="MessageHandlerRegistry{TKey}"/>.
     /// </summary>
     public static class MessageHandlerRegistryExtensions
     {
         /// <summary>
-        /// Adds based on all the IConsume interfaces that this object implements
+        /// Registers all message handlers (which implement <see cref="IConsume{TMessage}"/>) whose type matches a specified handler's type.
         /// </summary>
-        /// <param name="registry">Message Handler Registry of types.</param>
-        /// <param name="handler">Object that inherits the IConsume interfaces.</param>
+        /// <param name="registry">The <see cref="MessageHandlerRegistry{TKey}"/> to add handler methods to.</param>
+        /// <param name="handler">An message handler object whose type will be used to identify other handler methods to register.</param>
         public static void AddByConvention(this MessageHandlerRegistry<Type> registry, object handler)
         {
             var handlerType = handler.GetType();
