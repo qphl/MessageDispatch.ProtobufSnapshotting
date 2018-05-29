@@ -29,10 +29,12 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
         /// Initializes a new instance of the <see cref="WriteThroughFileCheckpoint"/> class.
         /// </summary>
         /// <param name="filename">The file to write a checkpoint to.</param>
+        /// <param name="name">The name of the checkpoint to write.</param>
         /// <param name="cached">Indicates if the checkpoint has been cached.</param>
         /// <param name="initValue">The initial value to write.</param>
-        public WriteThroughFileCheckpoint(string filename, bool cached, long initValue = 0)
+        public WriteThroughFileCheckpoint(string filename, string name, bool cached, long initValue = 0)
         {
+            Name = name;
             _cached = cached;
             _buffer = new byte[4096];
             _memStream = new MemoryStream(_buffer);
@@ -59,6 +61,11 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
 
             _last = _lastFlushed = ReadCurrent();
         }
+
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        public string Name { get; }
 
         /// <summary>
         /// Writes the checkpoint.
