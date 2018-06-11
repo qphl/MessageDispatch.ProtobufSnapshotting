@@ -1,74 +1,87 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-using CR.MessageDispatch.Core;
-using EventStore.ClientAPI;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿// <copyright file="EventStoreAggregateEventDispatcher.cs" company="Cognisant">
+// Copyright (c) Cognisant. All rights reserved.
+// </copyright>
 
 namespace CR.MessageDispatch.Dispatchers.EventStore
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Text;
+    using Core;
+    using global::EventStore.ClientAPI;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
+
     /// <summary>
-    /// Deserializing dispatcher for events produced by CR.AggregateRepository
+    /// A deserializing event dispatcher for events produced by CR.AggregatRepository.
     /// </summary>
-    public class EventStoreAggregateEventDispatcher : DeserializingMessageDispatcher<ResolvedEvent,Type>
+    public class EventStoreAggregateEventDispatcher : DeserializingMessageDispatcher<ResolvedEvent, Type>
     {
         private readonly JsonSerializerSettings _serializerSettings;
+        private readonly Dictionary<string, Type> _typeCache = new Dictionary<string, Type>();
 
-        public EventStoreAggregateEventDispatcher(IMessageHandlerLookup<Type> handlers, JsonSerializerSettings serializerSettings = null) : base(handlers)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EventStoreAggregateEventDispatcher"/> class.
+        /// </summary>
+        /// <param name="handlers">The handler methods for processing messages with.</param>
+        /// <param name="serializerSettings">Determines the settings for the JSON serialization of events.</param>
+        public EventStoreAggregateEventDispatcher(IMessageHandlerLookup<Type> handlers, JsonSerializerSettings serializerSettings = null)
+            : base(handlers)
         {
             _serializerSettings = serializerSettings ?? new JsonSerializerSettings();
         }
 
-        private Dictionary<String,Type> typeCache = new Dictionary<string, Type>(); 
-
+        /// <inheritdoc />
         protected override bool TryGetMessageType(ResolvedEvent rawMessage, out Type type)
         {
             type = null;
 
-            //optimization: don't even bother trying to deserialize metadata for system events
+            // optimization: don't even bother trying to deserialize metadata for system events
             if (rawMessage.Event.EventType.StartsWith("$") || rawMessage.Event.Metadata.Length == 0)
+            {
                 return false;
+            }
 
             try
             {
                 IDictionary<string, JToken> metadata = JObject.Parse(Encoding.UTF8.GetString(rawMessage.Event.Metadata));
-                
+
                 if (!metadata.ContainsKey("ClrType"))
+                {
                     return false;
+                }
 
-                var typeString = (string) metadata["ClrType"];
+                var typeString = (string)metadata["ClrType"];
 
-                Type cached = null;
-                if (!typeCache.TryGetValue(typeString, out cached))
+                if (!_typeCache.TryGetValue(typeString, out var cached))
                 {
                     try
                     {
-                        cached = Type.GetType((string) metadata["ClrType"], true);
+                        cached = Type.GetType((string)metadata["ClrType"], true);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        cached = typeof (TypeNotFound);
+                        cached = typeof(TypeNotFound);
                     }
 
-                    typeCache.Add(typeString, cached);
+                    _typeCache.Add(typeString, cached);
                 }
 
-                if (cached.Name.Equals("TypeNotFound"))
+                if (cached?.Name.Equals("TypeNotFound") ?? false)
+                {
                     return false;
+                }
 
                 type = cached;
                 return true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return false;
             }
         }
 
-        private class TypeNotFound { }
-
+        /// <inheritdoc />
         protected override bool TryDeserialize(Type messageType, ResolvedEvent rawMessage, out object deserialized)
         {
             deserialized = null;
@@ -83,6 +96,10 @@ namespace CR.MessageDispatch.Dispatchers.EventStore
             {
                 return false;
             }
+        }
+
+        private class TypeNotFound
+        {
         }
     }
 }

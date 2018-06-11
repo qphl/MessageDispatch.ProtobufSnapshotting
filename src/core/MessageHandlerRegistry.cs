@@ -1,18 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿// <copyright file="MessageHandlerRegistry.cs" company="Cognisant">
+// Copyright (c) Cognisant. All rights reserved.
+// </copyright>
 
 namespace CR.MessageDispatch.Core
 {
+    using System;
+    using System.Collections.Generic;
+
+    /// <summary>
+    /// A registry of message types and the methods which can be used to handle those types.
+    /// </summary>
+    /// <typeparam name="TKey">Key Type</typeparam>
     public class MessageHandlerRegistry<TKey> : IMessageHandlerRegistration<TKey>, IMessageHandlerLookup<TKey>
     {
-        private Dictionary<TKey, List<object>> _eventHandlers = new Dictionary<TKey,List<object>>();
+        private Dictionary<TKey, List<object>> _eventHandlers = new Dictionary<TKey, List<object>>();
 
+        /// <inheritdoc />
         public void Add(TKey messageType, object handler)
         {
-            List<object> handlerList;
-            var hasHandlerList = _eventHandlers.TryGetValue(messageType, out handlerList);
-
+            var hasHandlerList = _eventHandlers.TryGetValue(messageType, out var handlerList);
             if (!hasHandlerList)
             {
                 handlerList = new List<object>();
@@ -22,40 +28,23 @@ namespace CR.MessageDispatch.Core
             handlerList.Add(handler);
         }
 
+        /// <inheritdoc />
         public void Add(TKey messageType, Action<object> handler)
         {
             Add(messageType, new { Handle = handler });
         }
 
+        /// <inheritdoc />
         public void Clear()
         {
             _eventHandlers = new Dictionary<TKey, List<object>>();
         }
 
+        /// <inheritdoc />
         public List<object> HandlersForMessageType(TKey messageType)
         {
-            List<object> handlerList;
-            var hasHandlerList = _eventHandlers.TryGetValue(messageType, out handlerList);
-
+            var hasHandlerList = _eventHandlers.TryGetValue(messageType, out var handlerList);
             return hasHandlerList ? handlerList : new List<object>();
-        }
-    }
-
-    public static class MessageHandlerRegistryExtensions
-    {
-        /// <summary>
-        /// Adds based on all the IConsume interfaces that this object implements
-        /// </summary>
-        public static void AddByConvention(this MessageHandlerRegistry<Type> registry, object handler)
-        {
-            var handlerType = handler.GetType();
-
-            var handlerInterfaces = handlerType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IConsume<>)).ToArray();
-
-            foreach (var messageType in handlerInterfaces.Select(i => i.GetGenericArguments()[0]))
-            {
-                registry.Add(messageType, handler);
-            }
         }
     }
 }
