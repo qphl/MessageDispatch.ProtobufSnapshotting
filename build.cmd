@@ -18,4 +18,4 @@ set FULLVERSION=%VERSION%
 
 IF NOT [%SUFFIX%]==[] (set FULLVERSION="%FULLVERSION%-%SUFFIX%")
 
-dotnet pack src -o ../../dist -p:target=Default -p:Version=%VERSION% -p:PackageVersion=%FULLVERSION% -c Release
+dotnet pack src -o ../../dist -p:Version=%VERSION% -p:PackageVersion=%FULLVERSION% -c Release
