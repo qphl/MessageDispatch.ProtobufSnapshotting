@@ -1,15 +1,25 @@
 #!/bin/bash
 
-target="Default"
-if [ -n "$1" ]; then target="$1"
+major="0"
+if [ -n "$1" ]; then major="$1"
 fi
 
-buildmode="Release"
-if [ -n "$2" ]; then buildmode="$2"
+minor="0"
+if [ -n "$2" ]; then minor="$2"
 fi
 
-version="0.0.0"
-if [ -n "$3" ]; then version="$3"
+patch="0"
+if [ -n "$3" ]; then patch="$3"
 fi
 
-dotnet pack src -o ../../dist -p:target="$target" -p:Version="$version" -p:PackageVersion="$version" -c "$buildmode"
+version="$major"".""$minor"".""$patch"
+
+versionSuffix=""
+if [ -n "$4" ]; then versionSuffix="$4"
+fi
+
+fullVersion="$version"
+if [ -n "$versionSuffix" ]; then fullVersion="$fullVersion-$versionSuffix"
+fi
+
+dotnet pack src -o ../../dist -p:Version="$version" -p:PackageVersion="$fullVersion" -c Release

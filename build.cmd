@@ -1,12 +1,21 @@
 @echo off
 
-SET TARGET="Default"
-IF NOT [%1]==[] (set TARGET="%1")
+SET MAJOR=0
+IF NOT [%1]==[] (set MAJOR=%1)
 
-SET BUILDMODE="Release"
-IF NOT [%2]==[] (set BUILDMODE="%2")
+SET MINOR=0
+IF NOT [%2]==[] (set MINOR=%2)
 
-SET VERSION=0.0.0
-IF NOT [%3]==[] (set VERSION=%3)
+set PATCH=0
+IF NOT [%3]==[] (set PATCH=%3)
 
-dotnet pack src -o ../../dist -p:target=%TARGET% -p:Version=%VERSION% -p:PackageVersion=%VERSION% -c %BUILDMODE%
+set VERSION=%MAJOR%.%MINOR%.%PATCH%
+
+set SUFFIX=
+IF NOT [%4]==[] (set SUFFIX=%4)
+
+set FULLVERSION=%VERSION%
+
+IF NOT [%SUFFIX%]==[] (set FULLVERSION="%FULLVERSION%-%SUFFIX%")
+
+dotnet pack src -o ../../dist -p:target=Default -p:Version=%VERSION% -p:PackageVersion=%FULLVERSION% -c Release
