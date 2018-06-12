@@ -130,6 +130,18 @@ namespace CR.MessageDispatch.ProtobufSnapshotting
             InnerDispatcher.Dispatch(message);
         }
 
+        private static FileStream StreamForChunk(int chunkNumber, string basePath, FileMode mode)
+        {
+            var filePath = basePath + chunkNumber.ToString().PadLeft(5, '0') + ".chunk";
+
+            if (mode == FileMode.Open && !File.Exists(filePath))
+            {
+                return null;
+            }
+
+            return new FileStream(filePath, mode);
+        }
+
         private int GetHighestSnapshotPosition()
         {
             var directories = Directory.GetDirectories(_snapshotBasePath);
@@ -174,18 +186,6 @@ namespace CR.MessageDispatch.ProtobufSnapshotting
             }
 
             Directory.Move(tempPath, _snapshotBasePath + "/" + eventNumber);
-        }
-
-        private static FileStream StreamForChunk(int chunkNumber, string basePath, FileMode mode)
-        {
-            var filePath = basePath + chunkNumber.ToString().PadLeft(5, '0') + ".chunk";
-
-            if (mode == FileMode.Open && !File.Exists(filePath))
-            {
-                return null;
-            }
-
-            return new FileStream(filePath, mode);
         }
 
         [ProtoContract]
