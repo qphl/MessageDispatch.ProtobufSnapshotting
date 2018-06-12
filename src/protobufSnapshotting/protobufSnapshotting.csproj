@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>CR.MessageDispatch.ProtobufSnapshotting</AssemblyName>
+    <RootNamespace>CR.MessageDispatch.ProtobufSnapshotting</RootNamespace>
+    <Authors>Cognisant Research</Authors>
+    <Company>Cognisant Research</Company>
+    <Copyright>Cognisant Research 2018</Copyright>
+    <PackageLicenseUrl>https://github.com/cognisant/MessageDispatch.ProtobufSnapshotting/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/cognisant/MessageDispatch.ProtobufSnapshotting</PackageProjectUrl>
+    <PackageIconUrl>https://github.com/cognisant/MessageDispatch.ProtobufSnapshotting/blob/master/logo.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/cognisant/MessageDispatch.ProtobufSnapshotting</RepositoryUrl>
+    <PackageTags>Message Dispatching, Event Sourcing</PackageTags>
+    <Product>CR.MessageDispatch</Product>
+    <Description>A package to use wrap IDispatchers in a Dispatcher which snapshots them via ProtoBuf, for use with CR.MessageDispatch.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\netstandard2.0\CR.MessageDispatch.ProtobufSnapshotting.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard2.0\CR.MessageDispatch.ProtobufSnapshotting.xml</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CR.CodeStyle.CSharp.Full" Version="1.0.1" />
+    <PackageReference Include="CR.MessageDispatch.Core" Version="1.0.0-rc0001" />
+    <PackageReference Include="EventStore.ClientAPI.NetCore" Version="4.1.0.23" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
+
+</Project>
