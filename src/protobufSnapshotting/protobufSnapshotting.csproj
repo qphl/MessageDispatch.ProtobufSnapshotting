@@ -14,7 +14,7 @@
     <PackageTags>Message Dispatching, Event Sourcing</PackageTags>
     <Product>CR.MessageDispatch</Product>
     <Description>A package to use wrap IDispatchers in a Dispatcher which snapshots them via ProtoBuf, for use with CR.MessageDispatch.</Description>
-    <PackageReleaseNotes>https://GitHub.com/Cognisant/MessageDispatch.ProtobufSnapshotting/releases/tag/$(Version)</PackageReleaseNotes>
+    <PackageReleaseNotes>https://GitHub.com/Cognisant/MessageDispatch.ProtobufSnapshotting/releases/tag/$(Tag)</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
