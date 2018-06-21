@@ -1,2 +1,2 @@
-# cr-messagedispatch
-Simple message dispatch library + interfaces
+# CR.MessageDispatch.ProtobufSnapshotting
+A package to use Protobuf to snapshot wrapped IDispatchers with CR.MessageDispatch.

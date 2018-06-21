@@ -4,4 +4,9 @@ version="0.0.0"
 if [ -n "$1" ]; then version="$1"
 fi
 
-dotnet pack src -o ../../dist -p:Version="$version" -p:PackageVersion="$version" -c Release
+tag="0.0.0"
+if [ -n "$2" ]; then tag="$2"
+fi
+tag=${tag/tags\//}
+
+dotnet pack .\\src\\protobufSnapshotting\\protobufSnapshotting.csproj -o ..\\..\\dist -p:Version="$version" -p:PackageVersion="$version" -p:Tag="$tag" -c Release

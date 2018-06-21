@@ -3,4 +3,8 @@
 SET VERSION=0.0.0
 IF NOT [%1]==[] (set VERSION=%1)
 
-dotnet pack src -o ../../dist -p:Version="%VERSION%" -p:PackageVersion="%VERSION%" -c Release
+SET TAG=0.0.0
+IF NOT [%2]==[] (set TAG=%2)
+SET TAG=%TAG:tags/=%
+
+dotnet pack .\src\protobufSnapshotting\protobufSnapshotting.csproj -o ..\..\dist -p:Version="%VERSION%" -p:PackageVersion="%VERSION%" -p:Tag="%TAG%" -c Release
