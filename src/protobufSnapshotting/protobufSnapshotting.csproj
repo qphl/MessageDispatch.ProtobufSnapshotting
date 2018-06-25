@@ -9,7 +9,7 @@
     <Copyright>Cognisant Research 2018</Copyright>
     <PackageLicenseUrl>https://github.com/cognisant/MessageDispatch.ProtobufSnapshotting/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/cognisant/MessageDispatch.ProtobufSnapshotting</PackageProjectUrl>
-    <PackageIconUrl>https://github.com/cognisant/MessageDispatch.ProtobufSnapshotting/blob/master/logo.png</PackageIconUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/cognisant/MessageDispatch.ProtobufSnapshotting/master/logo.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/cognisant/MessageDispatch.ProtobufSnapshotting</RepositoryUrl>
     <PackageTags>Message Dispatching, Event Sourcing</PackageTags>
     <Product>CR.MessageDispatch</Product>
