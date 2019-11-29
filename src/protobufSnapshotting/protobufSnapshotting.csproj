@@ -13,7 +13,7 @@
     <RepositoryUrl>https://github.com/qphl/MessageDispatch.ProtobufSnapshotting</RepositoryUrl>
     <PackageTags>Message Dispatching, Event Sourcing</PackageTags>
     <Product>CorshamScience.MessageDispatch</Product>
-    <Description>A package to use wrap IDispatchers in a Dispatcher which snapshots them via ProtoBuf, for use with CorshamScience.MessageDispatch.</Description>
+    <Description>This package contains a wrapping implementation of IDispatcher which supports writing snapshots of in-memory viewmodel state to disk, serialised with ProtoBuf.</Description>
     <PackageReleaseNotes>https://GitHub.com/qphl/MessageDispatch.ProtobufSnapshotting/releases/tag/$(Tag)</PackageReleaseNotes>
     <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
     <PackageIcon>Logo.png</PackageIcon>
