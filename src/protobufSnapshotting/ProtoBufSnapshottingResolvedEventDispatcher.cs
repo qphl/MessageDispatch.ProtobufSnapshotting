@@ -1,18 +1,17 @@
-﻿// <copyright file="ProtoBufSnapshottingResolvedEventDispatcher.cs" company="Cognisant">
-// Copyright (c) Cognisant. All rights reserved.
+﻿// <copyright file="ProtoBufSnapshottingResolvedEventDispatcher.cs" company="Corsham Science">
+// Copyright (c) Corsham Science. All rights reserved.
 // </copyright>
 
-namespace CR.MessageDispatch.ProtobufSnapshotting
+namespace CorshamScience.MessageDispatch.ProtobufSnapshotting
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using Core;
+    using CorshamScience.MessageDispatch.Core;
     using EventStore.ClientAPI;
     using ProtoBuf;
 
-    /// <inheritdoc />
     /// <summary>
     /// A wrapping message dispatcher that can take and load snapshots of application states using protobuf.
     /// </summary>
@@ -57,7 +56,6 @@ namespace CR.MessageDispatch.ProtobufSnapshotting
             }
         }
 
-        /// <inheritdoc />
         /// <summary>
         /// Gets or sets the inner dispatcher which this will wrap.
         /// </summary>
