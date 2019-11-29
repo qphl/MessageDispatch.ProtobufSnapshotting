@@ -8,7 +8,7 @@ namespace CorshamScience.MessageDispatch.ProtobufSnapshotting
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using Core;
+    using CorshamScience.MessageDispatch.Core;
     using EventStore.ClientAPI;
     using ProtoBuf;
 
