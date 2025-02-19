@@ -9,7 +9,7 @@ namespace CorshamScience.MessageDispatch.ProtobufSnapshotting
     using System.IO;
     using System.Linq;
     using CorshamScience.MessageDispatch.Core;
-    using EventStore.ClientAPI;
+    using EventStore.Client;
     using ProtoBuf;
 
     /// <summary>
@@ -151,7 +151,7 @@ namespace CorshamScience.MessageDispatch.ProtobufSnapshotting
             return directories.Select(d => int.Parse(d.Replace(_snapshotBasePath, string.Empty))).Max();
         }
 
-        private void DoCheckpoint(long eventNumber)
+        private void DoCheckpoint(StreamPosition eventNumber)
         {
             var tempPath = _snapshotBasePath + TempDirectoryName;
             Directory.CreateDirectory(tempPath);
@@ -183,7 +183,7 @@ namespace CorshamScience.MessageDispatch.ProtobufSnapshotting
                 while (didMoveNext);
             }
 
-            Directory.Move(tempPath, _snapshotBasePath + "/" + eventNumber);
+            Directory.Move(tempPath, _snapshotBasePath + "/" + eventNumber.ToInt64());
         }
 
         [ProtoContract]
