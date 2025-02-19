@@ -42,6 +42,7 @@
 
   <ItemGroup>
     <None Include="Logo.png">
+      <PackagePath></PackagePath>
       <Pack>True</Pack>
     </None>
   </ItemGroup>
