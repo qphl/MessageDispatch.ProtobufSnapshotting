@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>CorshamScience.MessageDispatch.ProtobufSnapshotting</AssemblyName>
     <RootNamespace>CorshamScience.MessageDispatch.ProtobufSnapshotting</RootNamespace>
     <Authors>Corsham Science</Authors>
@@ -21,6 +21,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>bin\Debug\netstandard2.0\CorshamScience.MessageDispatch.ProtobufSnapshotting.xml</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -41,7 +42,6 @@
 
   <ItemGroup>
     <None Include="Logo.png">
-      <PackagePath></PackagePath>
       <Pack>True</Pack>
     </None>
   </ItemGroup>
