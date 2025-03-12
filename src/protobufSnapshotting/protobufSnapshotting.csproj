@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>CorshamScience.MessageDispatch.ProtobufSnapshotting</AssemblyName>
     <RootNamespace>CorshamScience.MessageDispatch.ProtobufSnapshotting</RootNamespace>
     <Authors>Corsham Science</Authors>
@@ -21,6 +21,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>bin\Debug\netstandard2.0\CorshamScience.MessageDispatch.ProtobufSnapshotting.xml</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -34,8 +35,9 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="CorshamScience.MessageDispatch.Core" Version="2.0.0" />
-    <PackageReference Include="EventStore.Client" Version="5.0.5" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="EventStore.Client.Grpc.Streams" Version="23.3.8" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="protobuf-net" Version="2.4.9" />
   </ItemGroup>
 
   <ItemGroup>
