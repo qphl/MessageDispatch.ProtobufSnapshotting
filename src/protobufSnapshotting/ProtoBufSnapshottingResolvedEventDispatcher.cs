@@ -1,8 +1,8 @@
-﻿// <copyright file="ProtoBufSnapshottingResolvedEventDispatcher.cs" company="Corsham Science">
-// Copyright (c) Corsham Science. All rights reserved.
+﻿// <copyright file="ProtoBufSnapshottingResolvedEventDispatcher.cs" company="Pharmaxo Scientific">
+// Copyright (c) Pharmaxo Scientific. All rights reserved.
 // </copyright>
 
-namespace CorshamScience.MessageDispatch.ProtobufSnapshotting
+namespace PharmaxoScientific.MessageDispatch.ProtobufSnapshotting
 {
     using System;
     using System.Collections.Generic;
