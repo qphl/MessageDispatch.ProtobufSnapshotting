@@ -9,7 +9,7 @@ namespace CorshamScience.MessageDispatch.ProtobufSnapshotting
     using System.IO;
     using System.Linq;
     using CorshamScience.MessageDispatch.Core;
-    using EventStore.Client;
+    using KurrentDB.Client;
     using ProtoBuf;
 
     /// <summary>
@@ -189,7 +189,7 @@ namespace CorshamScience.MessageDispatch.ProtobufSnapshotting
         [ProtoContract]
         private class ItemWrapper
         {
-            [ProtoMember(1, DynamicType = true)]
+            [ProtoMember(1)]
             public object Item { get; set; }
         }
     }
