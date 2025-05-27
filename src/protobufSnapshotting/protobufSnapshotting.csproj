@@ -37,7 +37,7 @@
     <PackageReference Include="CorshamScience.MessageDispatch.Core" Version="2.0.0" />
     <PackageReference Include="KurrentDB.Client" Version="1.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="protobuf-net" Version="3.2.52" />
+    <PackageReference Include="protobuf-net" Version="2.4.9" />
   </ItemGroup>
 
   <ItemGroup>

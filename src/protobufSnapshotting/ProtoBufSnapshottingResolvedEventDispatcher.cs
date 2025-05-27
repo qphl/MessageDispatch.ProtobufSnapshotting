@@ -189,7 +189,7 @@ namespace CorshamScience.MessageDispatch.ProtobufSnapshotting
         [ProtoContract]
         private class ItemWrapper
         {
-            [ProtoMember(1)]
+            [ProtoMember(1, DynamicType = true)]
             public object Item { get; set; }
         }
     }
