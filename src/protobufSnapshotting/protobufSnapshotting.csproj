@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net8.0;net481</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
     <AssemblyName>PharmaxoScientific.MessageDispatch.ProtobufSnapshotting</AssemblyName>
     <RootNamespace>PharmaxoScientific.MessageDispatch.ProtobufSnapshotting</RootNamespace>
     <Authors>Pharmaxo Scientific</Authors>
