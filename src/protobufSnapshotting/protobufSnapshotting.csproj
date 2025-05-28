@@ -31,9 +31,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CorshamScience.CodeStyle.CSharp.Full" Version="3.0.0">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="CorshamScience.MessageDispatch.Core" Version="2.0.0" />
     <PackageReference Include="KurrentDB.Client" Version="1.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
