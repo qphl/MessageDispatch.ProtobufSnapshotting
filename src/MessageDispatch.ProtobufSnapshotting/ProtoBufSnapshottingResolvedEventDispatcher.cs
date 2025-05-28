@@ -28,9 +28,16 @@ public class ProtoBufSnapshottingResolvedEventDispatcher : ISnapshottingDispatch
     /// <param name="stateProvider">A function to provide a list of objects that will be snapshotted.</param>
     /// <param name="snapshotBasePath">The base path of where the snapshots will be saved.</param>
     /// <param name="snapshotVersion">The version of the snapshot being saved.</param>
-    // ReSharper disable once UnusedMember.Global
-    public ProtoBufSnapshottingResolvedEventDispatcher(Func<IEnumerable<object>> stateProvider, string snapshotBasePath, string snapshotVersion)
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="snapshotBasePath"/> is null, empty, or contains a potentially malicious path (e.g., path traversal).
+    /// </exception>
+    public ProtoBufSnapshottingResolvedEventDispatcher(
+        Func<IEnumerable<object>> stateProvider,
+        string snapshotBasePath,
+        string snapshotVersion)
     {
+        ThrowIfMaliciousFilePath(snapshotBasePath);
+
         _stateProvider = stateProvider;
         _snapshotBasePath = snapshotBasePath;
 
@@ -62,7 +69,7 @@ public class ProtoBufSnapshottingResolvedEventDispatcher : ISnapshottingDispatch
     public int? LoadCheckpoint()
     {
         var pos = GetHighestSnapshotPosition();
-        return pos == -1 ? (int?)null : pos;
+        return pos == -1 ? null : pos;
     }
 
     /// <inheritdoc />
@@ -181,6 +188,19 @@ public class ProtoBufSnapshottingResolvedEventDispatcher : ISnapshottingDispatch
         }
 
         Directory.Move(tempPath, _snapshotBasePath + "/" + eventNumber.ToInt64());
+    }
+
+    /// <summary>
+    /// Validates the specified file path to detect potentially malicious input.
+    /// </summary>
+    /// <param name="filePath">The file path to validate.</param>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="filePath"/> is null, empty, or contains a potentially malicious path (e.g., path traversal).</exception>
+    private static void ThrowIfMaliciousFilePath(string filePath)
+    {
+        if (filePath is null || filePath.Contains("../") || filePath.Contains(@"..\"))
+        {
+            throw new ArgumentException("Invalid file path", filePath);
+        }
     }
 
     [ProtoContract]
