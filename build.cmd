@@ -12,4 +12,4 @@ dotnet restore .\src\PharmaxoScientific.MessageDispatch.ProtobufSnapshotting.sln
 dotnet format .\src\PharmaxoScientific.MessageDispatch.ProtobufSnapshotting.sln --severity warn --verify-no-changes -v diag
 IF %errorlevel% neq 0 EXIT /B %errorlevel%
 
-dotnet pack .\src\protobufSnapshotting\protobufSnapshotting.csproj -o .\dist -p:Version="%VERSION%" -p:PackageVersion="%VERSION%" -p:Tag="%TAG%" -c Release
+dotnet pack .\src\MessageDispatch.ProtobufSnapshotting\MessageDispatch.ProtobufSnapshotting.csproj -o .\dist -p:Version="%VERSION%" -p:PackageVersion="%VERSION%" -p:Tag="%TAG%" -c Release
