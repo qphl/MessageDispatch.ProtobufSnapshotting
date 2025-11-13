@@ -17,14 +17,11 @@ public class JsonSerialisingFileStateSnapshotterTests
     public void Setup()
     {
         _mockFileSystem = new MockFileSystem();
-        _snapshotter = new JsonSerialisingFileStateSnapshotter<TestState>(
-            _mockFileSystem,
-            SnapshotBasePath,
-            SnapshotVersion);
+        _snapshotter = CreateSnapshotter();
     }
 
     [Test]
-    public void LoadStateFromSnapshot_GivenNoSnapshotFiles_ReturnsEmptyState()
+    public void LoadStateFromSnapshot_GivenNoSnapshotFilesOrDirectory_ReturnsEmptyState()
     {
         var loadedState = _snapshotter.LoadStateFromSnapshot();
 
@@ -42,8 +39,10 @@ public class JsonSerialisingFileStateSnapshotterTests
     }
 
     [Test]
-    public void LoadStateFromSnapshot_GivenPreviouslySavedSnapshot_ReturnsSnapshotState()
+    public void LoadStateFromSnapshot_GivenDirectoryAlreadyExistsAndSinglePreviouslySavedSnapshot_ReturnsSnapshotState()
     {
+        _mockFileSystem.Directory.CreateDirectory($"{SnapshotBasePath}/{SnapshotVersion}/");
+
         const int eventNumber = 34324;
         var initialState = new TestState("Wof", 34);
 
@@ -51,10 +50,17 @@ public class JsonSerialisingFileStateSnapshotterTests
 
         _snapshotter.SaveSnapshot(eventNumber, initialState);
 
+        _snapshotter = CreateSnapshotter();
         var loadedState = _snapshotter.LoadStateFromSnapshot();
 
         Assert.That(loadedState, Is.EqualTo(expectedState));
     }
 
     private record TestState(string Field1, int Field2);
+
+    private JsonSerialisingFileStateSnapshotter<TestState> CreateSnapshotter() =>
+        new(
+            _mockFileSystem,
+            SnapshotBasePath,
+            SnapshotVersion);
 }

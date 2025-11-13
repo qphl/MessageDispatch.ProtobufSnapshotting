@@ -1,25 +1,56 @@
 ﻿// Copyright (c) Pharmaxo. All rights reserved.
 
 using System.IO.Abstractions;
+using System.Text.Json;
 
 namespace PharmaxoScientific.MessageDispatch.Snapshotting.Core;
 
 public class JsonSerialisingFileStateSnapshotter<TState> : IStateSnapshotter<TState>
 {
     private readonly IFileSystem _fileSystem;
+    private readonly JsonSerializerOptions? _jsonOptions;
     private readonly string _basePath;
-    private SnapshotState<TState>? _state;
 
     public JsonSerialisingFileStateSnapshotter(
         IFileSystem fileSystem,
         string snapshotBasePath,
-        string snapshotVersion)
+        string snapshotVersion,
+        JsonSerializerOptions? jsonOptions = null)
     {
         _fileSystem = fileSystem;
         _basePath = Path.Combine(snapshotBasePath, snapshotVersion);
+        _jsonOptions = jsonOptions ?? new JsonSerializerOptions { WriteIndented = false };
     }
 
-    public void SaveSnapshot(long eventNumber, TState state) => _state = new SnapshotState<TState>(state, eventNumber);
+    public void SaveSnapshot(long eventNumber, TState state)
+    {
+        var checkpointFilePath = Path.Combine(_basePath, eventNumber.ToString());
 
-    public SnapshotState<TState>? LoadStateFromSnapshot() => _state;
+        var json = JsonSerializer.Serialize(state, _jsonOptions);
+
+        _fileSystem.File.WriteAllText(checkpointFilePath, json);
+    }
+
+    public SnapshotState<TState>? LoadStateFromSnapshot()
+    {
+        if (!_fileSystem.Directory.Exists(_basePath))
+        {
+            return null;
+        }
+
+        var files = _fileSystem.Directory.GetFiles(_basePath);
+        if (files.Length == 0)
+        {
+            return null;
+        }
+
+        var file = files[0];
+        var json = _fileSystem.File.ReadAllText(file);
+        var state = JsonSerializer.Deserialize<TState>(json, _jsonOptions)!;
+
+        var fileName = Path.GetFileName(file);
+        long.TryParse(fileName, out var eventNumber);
+
+        return new SnapshotState<TState>(state, eventNumber);
+    }
 }
