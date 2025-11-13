@@ -4,7 +4,7 @@ namespace PharmaxoScientific.MessageDispatch.Snapshotting.Core;
 
 public interface IStateSnapshotter<TState>
 {
-    void SaveSnapshot(long eventNumber);
+    void SaveSnapshot(long eventNumber, TState state);
 
     SnapshotState<TState>? LoadStateFromSnapshot();
 }

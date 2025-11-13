@@ -2,9 +2,4 @@
 
 namespace PharmaxoScientific.MessageDispatch.Snapshotting.Core;
 
-public class SnapshotState<TState>
-{
-    public TState? State { get; init; }
-
-    public int? LastHandledEventNumber { get; set; }
-}
+public record SnapshotState<TState>(TState InitialState, long EventNumber);
