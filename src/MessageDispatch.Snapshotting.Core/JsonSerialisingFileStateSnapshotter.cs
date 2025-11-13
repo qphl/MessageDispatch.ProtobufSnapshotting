@@ -5,12 +5,23 @@ using System.Text.Json;
 
 namespace PharmaxoScientific.MessageDispatch.Snapshotting.Core;
 
+/// <summary>
+/// An implementation of <see cref="ISnapshotStrategy{T}"/> that persists its snapshots to a JSON file.
+/// </summary>
+/// <typeparam name="TState">The type of state to persist.</typeparam>
 public class JsonSerialisingFileStateSnapshotter<TState> : IStateSnapshotter<TState>
 {
     private readonly IFileSystem _fileSystem;
     private readonly JsonSerializerOptions? _jsonOptions;
     private readonly string _basePath;
 
+    /// <summary>
+    /// Initialises a new instance of the <see cref="JsonSerialisingFileStateSnapshotter{TState}"/>.
+    /// </summary>
+    /// <param name="fileSystem">An abstraction of the file system to facilitate unit testing.</param>
+    /// <param name="snapshotBasePath">The base path of the snapshot fileSystem.</param>
+    /// <param name="snapshotVersion">The version of the snapshot.</param>
+    /// <param name="jsonOptions">Optional JSON options for the serialiser.</param>
     public JsonSerialisingFileStateSnapshotter(
         IFileSystem fileSystem,
         string snapshotBasePath,
@@ -22,6 +33,7 @@ public class JsonSerialisingFileStateSnapshotter<TState> : IStateSnapshotter<TSt
         _jsonOptions = jsonOptions ?? new JsonSerializerOptions { WriteIndented = false };
     }
 
+    /// <inheritdoc />
     public void SaveSnapshot(long eventNumber, TState state)
     {
         if (!_fileSystem.Directory.Exists(_basePath))
@@ -41,6 +53,7 @@ public class JsonSerialisingFileStateSnapshotter<TState> : IStateSnapshotter<TSt
         _fileSystem.File.WriteAllText(checkpointFilePath, json);
     }
 
+    /// <inheritdoc />
     public SnapshotState<TState>? LoadStateFromSnapshot()
     {
         if (!_fileSystem.Directory.Exists(_basePath))
