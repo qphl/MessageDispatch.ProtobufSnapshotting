@@ -17,9 +17,25 @@ public class CheckpointRequestedSnapshotStrategyTests
     [Test]
     public void ShouldSnapshotForEvent_GivenCheckpointRequested_ReturnsTrue()
     {
+        var resolvedEvent = BuildResolvedEvent(EventTypeToSnapshotOn);
+
+        Assert.That(_strategy.ShouldSnapshotForEvent(resolvedEvent), Is.True);
+    }
+
+    [TestCase("CheckpointPlease")]
+    [TestCase("CheckpointNotRequested")]
+    public void ShouldSnapshotForEvent_GivenCheckpointRequested_ReturnsTrue(string nonSnapshottingEventType)
+    {
+        var resolvedEvent = BuildResolvedEvent(nonSnapshottingEventType);
+
+        Assert.That(_strategy.ShouldSnapshotForEvent(resolvedEvent), Is.False);
+    }
+
+    private static ResolvedEvent BuildResolvedEvent(string eventType)
+    {
         var metaData = new Dictionary<string, string>
         {
-            { "type", EventTypeToSnapshotOn },
+            { "type", eventType },
             { "created", DateTime.Now.Ticks.ToString() },
             { "content-type", "application/json" },
         };
@@ -37,7 +53,6 @@ public class CheckpointRequestedSnapshotStrategyTests
             Encoding.UTF8.GetBytes(serialisedCustomMetaData));
 
         var resolvedEvent = new ResolvedEvent(eventRecord, null, null);
-
-        Assert.That(_strategy.ShouldSnapshotForEvent(resolvedEvent), Is.True);
+        return resolvedEvent;
     }
 }

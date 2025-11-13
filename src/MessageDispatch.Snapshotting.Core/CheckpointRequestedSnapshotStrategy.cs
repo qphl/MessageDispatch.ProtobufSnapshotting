@@ -6,5 +6,5 @@ namespace PharmaxoScientific.MessageDispatch.Snapshotting.Core;
 
 public class CheckpointRequestedSnapshotStrategy : ISnapshotStrategy<ResolvedEvent>
 {
-    public bool ShouldSnapshotForEvent(ResolvedEvent @event) => true;
+    public bool ShouldSnapshotForEvent(ResolvedEvent @event) => @event.Event.EventType ==  "CheckpointRequested";
 }
