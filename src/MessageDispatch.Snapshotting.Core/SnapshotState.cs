@@ -2,4 +2,4 @@
 
 namespace PharmaxoScientific.MessageDispatch.Snapshotting.Core;
 
-public record SnapshotState<TState>(TState InitialState, long EventNumber);
+public record SnapshotState<TState>(TState State, long EventNumber);

@@ -110,8 +110,6 @@ public class JsonSerialisingFileStateSnapshotterTests
         Assert.That(actualLastWriteTime, Is.EqualTo(expectedLastWriteTime));
     }
 
-    private record TestState(string Field1, int Field2);
-
     private JsonSerialisingFileStateSnapshotter<TestState> CreateSnapshotter() =>
         new(
             _mockFileSystem,

@@ -10,13 +10,13 @@ public class SnapshottingResolvedEventDispatcher<TState> : IDispatcher<ResolvedE
     private readonly IStateProvider<TState> _stateProvider;
     private readonly ISnapshotStrategy<TState> _snapshotStrategy;
     private readonly IStateSnapshotter<TState> _stateSnapshotter;
-    private readonly IDispatcher<TState> _innerDispatcher;
+    private readonly IDispatcher<ResolvedEvent> _innerDispatcher;
 
     public SnapshottingResolvedEventDispatcher(
         IStateProvider<TState> stateProvider,
         ISnapshotStrategy<TState> snapshotStrategy,
         IStateSnapshotter<TState> stateSnapshotter,
-        IDispatcher<TState> innerDispatcher)
+        IDispatcher<ResolvedEvent> innerDispatcher)
     {
         _stateProvider = stateProvider;
         _snapshotStrategy = snapshotStrategy;
@@ -30,6 +30,6 @@ public class SnapshottingResolvedEventDispatcher<TState> : IDispatcher<ResolvedE
         //       If yes, get state from _stateProvider and tell _stateSnapshotter to snapshot
         // Dispatch event to inner dispatcher
 
-        throw new NotImplementedException();
+        _innerDispatcher.Dispatch(message);
     }
 }
