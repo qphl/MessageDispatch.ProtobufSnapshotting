@@ -21,7 +21,7 @@ public class JsonSerialisingFileStateSnapshotterTests
     }
 
     [Test]
-    public void LoadStateFromSnapshot_GivenNoSnapshotFilesOrDirectory_ReturnsEmptyState()
+    public void GivenNoSnapshotFilesOrDirectory_ReturnsEmptyState()
     {
         var loadedState = _snapshotter.LoadStateFromSnapshot();
 
@@ -29,7 +29,7 @@ public class JsonSerialisingFileStateSnapshotterTests
     }
 
     [Test]
-    public void LoadStateFromSnapshot_GivenNoSnapshotFilesButDirectoryExists_ReturnsEmptyDictionary()
+    public void GivenNoSnapshotFilesButDirectoryExists_ReturnsEmptyDictionary()
     {
         _mockFileSystem.Directory.CreateDirectory($"{SnapshotBasePath}/{SnapshotVersion}");
 
@@ -39,10 +39,26 @@ public class JsonSerialisingFileStateSnapshotterTests
     }
 
     [Test]
-    public void LoadStateFromSnapshot_GivenDirectoryAlreadyExistsAndSinglePreviouslySavedSnapshot_ReturnsSnapshotState()
+    public void GivenDirectoryAlreadyExists_WhenSavedAndReloaded_ReturnsSnapshotState()
     {
         _mockFileSystem.Directory.CreateDirectory($"{SnapshotBasePath}/{SnapshotVersion}/");
 
+        const int eventNumber = 34324;
+        var initialState = new TestState("Wof", 34);
+
+        var expectedState = new SnapshotState<TestState>(initialState, eventNumber);
+
+        _snapshotter.SaveSnapshot(eventNumber, initialState);
+
+        _snapshotter = CreateSnapshotter();
+        var loadedState = _snapshotter.LoadStateFromSnapshot();
+
+        Assert.That(loadedState, Is.EqualTo(expectedState));
+    }
+
+    [Test]
+    public void GivenDirectoryDidNotExistExists_WhenSavedAndReloaded_ReturnsSnapshotState()
+    {
         const int eventNumber = 34324;
         var initialState = new TestState("Wof", 34);
 

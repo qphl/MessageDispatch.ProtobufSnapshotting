@@ -24,6 +24,11 @@ public class JsonSerialisingFileStateSnapshotter<TState> : IStateSnapshotter<TSt
 
     public void SaveSnapshot(long eventNumber, TState state)
     {
+        if (!_fileSystem.Directory.Exists(_basePath))
+        {
+            _fileSystem.Directory.CreateDirectory(_basePath);
+        }
+
         var checkpointFilePath = Path.Combine(_basePath, eventNumber.ToString());
 
         var json = JsonSerializer.Serialize(state, _jsonOptions);
