@@ -90,6 +90,26 @@ public class JsonSerialisingFileStateSnapshotterTests
         Assert.That(loadedState, Is.EqualTo(expectedState));
     }
 
+    [Test]
+    public void WhenCheckpointFileAlreadyExists_DoesNotOverwriteExistingSnapshotFile()
+    {
+        const int eventNumber = 2134234;
+        const string basePath = $"{SnapshotBasePath}/{SnapshotVersion}/";
+        var filePath = $"{basePath}/{eventNumber}";
+        var expectedLastWriteTime = DateTime.Now;
+        var state = new TestState("Wof", 34);
+
+        _snapshotter.SaveSnapshot(eventNumber, state);
+
+        _mockFileSystem.File.SetLastWriteTime(filePath, expectedLastWriteTime);
+
+        _snapshotter.SaveSnapshot(eventNumber, state);
+
+        var actualLastWriteTime = _mockFileSystem.File.GetLastWriteTime(filePath);
+
+        Assert.That(actualLastWriteTime, Is.EqualTo(expectedLastWriteTime));
+    }
+
     private record TestState(string Field1, int Field2);
 
     private JsonSerialisingFileStateSnapshotter<TestState> CreateSnapshotter() =>

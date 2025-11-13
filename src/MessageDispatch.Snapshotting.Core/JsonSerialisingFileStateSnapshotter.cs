@@ -31,6 +31,11 @@ public class JsonSerialisingFileStateSnapshotter<TState> : IStateSnapshotter<TSt
 
         var checkpointFilePath = Path.Combine(_basePath, eventNumber.ToString());
 
+        if (_fileSystem.File.Exists(checkpointFilePath))
+        {
+            return;
+        }
+
         var json = JsonSerializer.Serialize(state, _jsonOptions);
 
         _fileSystem.File.WriteAllText(checkpointFilePath, json);
