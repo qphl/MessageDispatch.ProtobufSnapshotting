@@ -5,18 +5,19 @@ namespace PharmaxoScientific.MessageDispatch.Snapshotting.Core;
 public class OnceDailySnapshotStrategy<T> : ISnapshotStrategy<T>
 {
     private readonly TimeProvider _timeProvider;
-    private bool _hasSnapshotted = false;
+    private DateTime? _lastSnapshotTime;
 
     public OnceDailySnapshotStrategy(TimeProvider timeProvider) => _timeProvider = timeProvider;
 
     public bool ShouldSnapshotForEvent(T @event)
     {
-        if (!_hasSnapshotted)
+        var now = _timeProvider.GetUtcNow().UtcDateTime;
+        if (now.Date <= _lastSnapshotTime?.Date)
         {
-            _hasSnapshotted = true;
-            return true;
+            return false;
         }
 
-        return false;
+        _lastSnapshotTime = now;
+        return true;
     }
 }
