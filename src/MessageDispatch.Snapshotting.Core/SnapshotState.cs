@@ -1,4 +1,4 @@
-// Copyright (c) Pharmaxo. All rights reserved.
+﻿// Copyright (c) Pharmaxo. All rights reserved.
 
 namespace PharmaxoScientific.MessageDispatch.Snapshotting.Core;
 

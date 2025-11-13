@@ -1,3 +1,5 @@
+﻿// Copyright (c) Pharmaxo. All rights reserved.
+
 using PharmaxoScientific.MessageDispatch.Snapshotting.Core;
 
 namespace MessageDispatch.Snapshotting.Core.Tests;

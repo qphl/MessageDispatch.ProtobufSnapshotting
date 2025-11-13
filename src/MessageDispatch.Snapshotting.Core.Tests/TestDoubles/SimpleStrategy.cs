@@ -1,4 +1,4 @@
-// Copyright (c) Pharmaxo. All rights reserved.
+﻿// Copyright (c) Pharmaxo. All rights reserved.
 
 using KurrentDB.Client;
 using PharmaxoScientific.MessageDispatch.Snapshotting.Core;
