@@ -9,7 +9,7 @@ public class NamedEventSnapshotStrategyTests
     public void ShouldSnapshotForEvent_GivenMatchingEventType_ReturnsTrue(string snapshottingEventType)
     {
         var strategy = new NamedEventSnapshotStrategy(snapshottingEventType);
-        var resolvedEvent = TestHelpers.BuildResolvedEvent(snapshottingEventType);
+        var resolvedEvent = TestHelpers.BuildResolvedEvent(snapshottingEventType, 0);
 
         Assert.That(strategy.ShouldSnapshotForEvent(resolvedEvent), Is.True);
     }
@@ -19,7 +19,7 @@ public class NamedEventSnapshotStrategyTests
     public void ShouldSnapshotForEvent_GivenNonMatchingEventType_ReturnsFalse(string nonSnapshottingEventType)
     {
         var strategy = new NamedEventSnapshotStrategy("CheckpointRequested");
-        var resolvedEvent = TestHelpers.BuildResolvedEvent(nonSnapshottingEventType);
+        var resolvedEvent = TestHelpers.BuildResolvedEvent(nonSnapshottingEventType, 0);
 
         Assert.That(strategy.ShouldSnapshotForEvent(resolvedEvent), Is.False);
     }

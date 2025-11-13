@@ -8,7 +8,7 @@ namespace MessageDispatch.Snapshotting.Core.Tests;
 
 internal static class TestHelpers
 {
-    internal static ResolvedEvent BuildResolvedEvent(string eventType)
+    internal static ResolvedEvent BuildResolvedEvent(string eventType, int eventNumber)
     {
         var metaData = new Dictionary<string, string>
         {
@@ -23,7 +23,7 @@ internal static class TestHelpers
         var eventRecord = new EventRecord(
             "event-stream",
             Uuid.NewUuid(),
-            0,
+            StreamPosition.FromInt64(eventNumber),
             Position.Start,
             metaData,
             Encoding.UTF8.GetBytes(serialisedData),

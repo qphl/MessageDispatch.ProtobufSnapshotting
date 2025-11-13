@@ -6,9 +6,7 @@ namespace MessageDispatch.Snapshotting.Core.Tests.TestDoubles;
 
 internal class SimpleStateProvider : IStateProvider<TestState>
 {
-    private readonly TestState _testState;
+    public TestState? State { get; set; }
 
-    public SimpleStateProvider(TestState testState) => _testState = testState;
-
-    public TestState GetState() => _testState;
+    public TestState? GetState() => State;
 }

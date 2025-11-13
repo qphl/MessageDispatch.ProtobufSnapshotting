@@ -8,13 +8,13 @@ namespace PharmaxoScientific.MessageDispatch.Snapshotting.Core;
 public class SnapshottingResolvedEventDispatcher<TState> : IDispatcher<ResolvedEvent>
 {
     private readonly IStateProvider<TState> _stateProvider;
-    private readonly ISnapshotStrategy<TState> _snapshotStrategy;
+    private readonly ISnapshotStrategy<ResolvedEvent> _snapshotStrategy;
     private readonly IStateSnapshotter<TState> _stateSnapshotter;
     private readonly IDispatcher<ResolvedEvent> _innerDispatcher;
 
     public SnapshottingResolvedEventDispatcher(
         IStateProvider<TState> stateProvider,
-        ISnapshotStrategy<TState> snapshotStrategy,
+        ISnapshotStrategy<ResolvedEvent> snapshotStrategy,
         IStateSnapshotter<TState> stateSnapshotter,
         IDispatcher<ResolvedEvent> innerDispatcher)
     {
@@ -26,9 +26,15 @@ public class SnapshottingResolvedEventDispatcher<TState> : IDispatcher<ResolvedE
 
     public void Dispatch(ResolvedEvent message)
     {
-        // Does _snapshotStrategy want us to snapshot?
-        //       If yes, get state from _stateProvider and tell _stateSnapshotter to snapshot
-        // Dispatch event to inner dispatcher
+        if (_snapshotStrategy.ShouldSnapshotForEvent(message))
+        {
+            var state = _stateProvider.GetState();
+
+            if (state != null)
+            {
+                _stateSnapshotter.SaveSnapshot(message.OriginalEventNumber.ToInt64(), state);
+            }
+        }
 
         _innerDispatcher.Dispatch(message);
     }

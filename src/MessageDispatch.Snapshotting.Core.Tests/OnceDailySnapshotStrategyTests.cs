@@ -20,7 +20,7 @@ public class OnceDailySnapshotStrategyTests
     [Test]
     public void ShouldSnapshotForEvent_GivenFirstEvent_ReturnsTrue()
     {
-        var resolvedEvent = TestHelpers.BuildResolvedEvent("AnyEventType");
+        var resolvedEvent = TestHelpers.BuildResolvedEvent("AnyEventType", 0);
 
         Assert.That(_strategy.ShouldSnapshotForEvent(resolvedEvent), Is.True);
     }
@@ -28,8 +28,8 @@ public class OnceDailySnapshotStrategyTests
     [Test]
     public void ShouldSnapshotForEvent_GivenTwoEventsOnSameDay_ReturnsFalse()
     {
-        var firstEvent = TestHelpers.BuildResolvedEvent("AnyEventType");
-        var secondEvent = TestHelpers.BuildResolvedEvent("AnyEventType");
+        var firstEvent = TestHelpers.BuildResolvedEvent("AnyEventType", 0);
+        var secondEvent = TestHelpers.BuildResolvedEvent("AnyEventType", 1);
 
         _timeProvider.SetUtcNow(DateTime.UtcNow);
         _strategy.ShouldSnapshotForEvent(firstEvent);
@@ -41,8 +41,8 @@ public class OnceDailySnapshotStrategyTests
     [Test]
     public void ShouldSnapshotForEvent_GivenEventsOnDifferentDays_ReturnsTrue()
     {
-        var firstEvent = TestHelpers.BuildResolvedEvent("AnyEventType");
-        var secondEvent = TestHelpers.BuildResolvedEvent("AnyEventType");
+        var firstEvent = TestHelpers.BuildResolvedEvent("AnyEventType", 0);
+        var secondEvent = TestHelpers.BuildResolvedEvent("AnyEventType", 1);
 
         _timeProvider.SetUtcNow(DateTime.UtcNow);
         _strategy.ShouldSnapshotForEvent(firstEvent);

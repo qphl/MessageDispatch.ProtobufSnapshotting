@@ -4,5 +4,5 @@ namespace PharmaxoScientific.MessageDispatch.Snapshotting.Core;
 
 public interface IStateProvider<TState>
 {
-    TState GetState();
+    TState? GetState();
 }
