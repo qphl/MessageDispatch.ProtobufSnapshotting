@@ -5,6 +5,10 @@ VisualStudioVersion = 17.12.35707.178 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageDispatch.ProtobufSnapshotting", "MessageDispatch.ProtobufSnapshotting\MessageDispatch.ProtobufSnapshotting.csproj", "{C9EC1D4B-158D-4610-BD1A-DB6903F4B0E1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageDispatch.Snapshotting.Core", "MessageDispatch.Snapshotting.Core\MessageDispatch.Snapshotting.Core.csproj", "{D5077169-CD20-4C0B-A71E-3AF02D87BB15}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageDispatch.Snapshotting.Core.Tests", "MessageDispatch.Snapshotting.Core.Tests\MessageDispatch.Snapshotting.Core.Tests.csproj", "{1AB7511F-3D6F-4F84-BBD5-3662C5A1BB87}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{C9EC1D4B-158D-4610-BD1A-DB6903F4B0E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9EC1D4B-158D-4610-BD1A-DB6903F4B0E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9EC1D4B-158D-4610-BD1A-DB6903F4B0E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5077169-CD20-4C0B-A71E-3AF02D87BB15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5077169-CD20-4C0B-A71E-3AF02D87BB15}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5077169-CD20-4C0B-A71E-3AF02D87BB15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5077169-CD20-4C0B-A71E-3AF02D87BB15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1AB7511F-3D6F-4F84-BBD5-3662C5A1BB87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AB7511F-3D6F-4F84-BBD5-3662C5A1BB87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1AB7511F-3D6F-4F84-BBD5-3662C5A1BB87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AB7511F-3D6F-4F84-BBD5-3662C5A1BB87}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
