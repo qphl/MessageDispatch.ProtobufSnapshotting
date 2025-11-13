@@ -72,6 +72,24 @@ public class JsonSerialisingFileStateSnapshotterTests
         Assert.That(loadedState, Is.EqualTo(expectedState));
     }
 
+    [Test]
+    public void GivenMultipleExistingSnapshots_WhenReloaded_ReturnsLatestSnapshotState()
+    {
+        const long latestEventNumber = 8978;
+        var latestState = new TestState("TheLatestOne", 99);
+        var expectedState = new SnapshotState<TestState>(latestState, latestEventNumber);
+
+        _snapshotter.SaveSnapshot(1, new TestState("Wof", 34));
+        _snapshotter.SaveSnapshot(10, new TestState("Tam", 34345));
+        _snapshotter.SaveSnapshot(478, new TestState("Foo", 79878));
+        _snapshotter.SaveSnapshot(latestEventNumber, latestState);
+
+        _snapshotter = CreateSnapshotter();
+        var loadedState = _snapshotter.LoadStateFromSnapshot();
+
+        Assert.That(loadedState, Is.EqualTo(expectedState));
+    }
+
     private record TestState(string Field1, int Field2);
 
     private JsonSerialisingFileStateSnapshotter<TestState> CreateSnapshotter() =>

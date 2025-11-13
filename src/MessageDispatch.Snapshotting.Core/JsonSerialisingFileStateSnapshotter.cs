@@ -49,11 +49,15 @@ public class JsonSerialisingFileStateSnapshotter<TState> : IStateSnapshotter<TSt
             return null;
         }
 
-        var file = files[0];
-        var json = _fileSystem.File.ReadAllText(file);
+        var latest = files
+            .Select(f => _fileSystem.FileInfo.New(f))
+            .OrderByDescending(f => long.TryParse(f.Name, out var n) ? n : -1)
+            .First();
+
+        var json = _fileSystem.File.ReadAllText(latest.FullName);
         var state = JsonSerializer.Deserialize<TState>(json, _jsonOptions)!;
 
-        var fileName = Path.GetFileName(file);
+        var fileName = Path.GetFileName(latest.Name);
         long.TryParse(fileName, out var eventNumber);
 
         return new SnapshotState<TState>(state, eventNumber);
