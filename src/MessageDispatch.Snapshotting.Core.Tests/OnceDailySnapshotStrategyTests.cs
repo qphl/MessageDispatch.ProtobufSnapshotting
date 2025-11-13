@@ -24,4 +24,17 @@ public class OnceDailySnapshotStrategyTests
 
         Assert.That(_strategy.ShouldSnapshotForEvent(resolvedEvent), Is.True);
     }
+
+    [Test]
+    public void ShouldSnapshotForEvent_GivenTwoEventsOnSameDay_ReturnsFalse()
+    {
+        var firstEvent = TestHelpers.BuildResolvedEvent("Anything");
+        var secondEvent = TestHelpers.BuildResolvedEvent("Anything");
+
+        _timeProvider.SetUtcNow(DateTime.UtcNow);
+        _strategy.ShouldSnapshotForEvent(firstEvent);
+
+        _timeProvider.SetUtcNow(DateTime.UtcNow);
+        Assert.That(_strategy.ShouldSnapshotForEvent(secondEvent), Is.False);
+    }
 }
