@@ -45,4 +45,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MessageDispatch.Snapshotting.Core\MessageDispatch.Snapshotting.Core.csproj" />
+  </ItemGroup>
+
 </Project>

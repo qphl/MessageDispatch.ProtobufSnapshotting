@@ -4,41 +4,34 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using CorshamScience.MessageDispatch.Core;
 using KurrentDB.Client;
+using PharmaxoScientific.MessageDispatch.Snapshotting.Core;
 using ProtoBuf;
 
 namespace PharmaxoScientific.MessageDispatch.ProtobufSnapshotting;
+
 /// <summary>
-/// A wrapping message dispatcher that can take and load snapshots of application states using protobuf.
+/// An implementation of <see cref="ISnapshotStrategy{T}"/> that persists its snapshots to Protobuf files.
 /// </summary>
-public class ProtoBufSnapshottingResolvedEventDispatcher : ISnapshottingDispatcher<ResolvedEvent>
+public class ProtoBufStateSnapshotter : IStateSnapshotter<IEnumerable<object>>
 {
     private const string TempDirectoryName = "tmp/";
     private const int ChunkSize = 52428800;
 
-    private readonly Func<IEnumerable<object>> _stateProvider;
     private readonly string _snapshotBasePath;
 
-    private int _catchupCheckpointCount;
-
     /// <summary>
-    /// Initializes a new instance of the <see cref="ProtoBufSnapshottingResolvedEventDispatcher"/> class.
+    /// Initializes a new instance of the <see cref="ProtoBufStateSnapshotter"/> class.
     /// </summary>
-    /// <param name="stateProvider">A function to provide a list of objects that will be snapshotted.</param>
     /// <param name="snapshotBasePath">The base path of where the snapshots will be saved.</param>
     /// <param name="snapshotVersion">The version of the snapshot being saved.</param>
     /// <exception cref="ArgumentException">
     /// Thrown when <paramref name="snapshotBasePath"/> is null, empty, or contains a potentially malicious path (e.g., path traversal).
     /// </exception>
-    public ProtoBufSnapshottingResolvedEventDispatcher(
-        Func<IEnumerable<object>> stateProvider,
-        string snapshotBasePath,
-        string snapshotVersion)
+    public ProtoBufStateSnapshotter(string snapshotBasePath, string snapshotVersion)
     {
         ThrowIfMaliciousFilePath(snapshotBasePath);
 
-        _stateProvider = stateProvider;
         _snapshotBasePath = snapshotBasePath;
 
         if (!Directory.Exists(_snapshotBasePath))
@@ -60,20 +53,29 @@ public class ProtoBufSnapshottingResolvedEventDispatcher : ISnapshottingDispatch
         }
     }
 
-    /// <summary>
-    /// Gets or sets the inner dispatcher which this will wrap.
-    /// </summary>
-    public IDispatcher<ResolvedEvent> InnerDispatcher { get; set; }
+    /// <inheritdoc />
+    public void SaveSnapshot(long eventNumber, IEnumerable<object> state) =>
+        DoCheckpoint(StreamPosition.FromInt64(eventNumber), state);
 
     /// <inheritdoc />
-    public int? LoadCheckpoint()
+    public SnapshotState<IEnumerable<object>> LoadStateFromSnapshot()
+    {
+        var checkpoint = LoadCheckpoint();
+        if (checkpoint is null)
+        {
+            return null;
+        }
+
+        return new SnapshotState<IEnumerable<object>>(LoadObjects(), (long)checkpoint);
+    }
+
+    private int? LoadCheckpoint()
     {
         var pos = GetHighestSnapshotPosition();
         return pos == -1 ? null : pos;
     }
 
-    /// <inheritdoc />
-    public IEnumerable<object> LoadObjects()
+    private IEnumerable<object> LoadObjects()
     {
         var pos = GetHighestSnapshotPosition();
 
@@ -107,31 +109,6 @@ public class ProtoBufSnapshottingResolvedEventDispatcher : ISnapshottingDispatch
         }
     }
 
-    /// <inheritdoc />
-    public void Dispatch(ResolvedEvent message)
-    {
-        if (message.Event.EventType.Equals("CheckpointRequested"))
-        {
-            // checkpoint less often while catching up
-            if (message.Event.Created < DateTime.Today)
-            {
-                _catchupCheckpointCount++;
-                if (_catchupCheckpointCount % 30 == 0)
-                {
-                    DoCheckpoint(message.OriginalEventNumber);
-                    return;
-                }
-            }
-            else
-            {
-                DoCheckpoint(message.OriginalEventNumber);
-                return;
-            }
-        }
-
-        InnerDispatcher.Dispatch(message);
-    }
-
     private static FileStream StreamForChunk(int chunkNumber, string basePath, FileMode mode)
     {
         var filePath = basePath + chunkNumber.ToString().PadLeft(5, '0') + ".chunk";
@@ -155,34 +132,31 @@ public class ProtoBufSnapshottingResolvedEventDispatcher : ISnapshottingDispatch
         return directories.Select(d => int.Parse(d.Replace(_snapshotBasePath, string.Empty))).Max();
     }
 
-    private void DoCheckpoint(StreamPosition eventNumber)
+    private void DoCheckpoint(StreamPosition eventNumber, IEnumerable<object> state)
     {
         var tempPath = _snapshotBasePath + TempDirectoryName;
         Directory.CreateDirectory(tempPath);
-        var itemEnumerable = _stateProvider();
 
         var chunkCount = 0;
         var didMoveNext = false;
 
-        using (var enumerator = itemEnumerable.GetEnumerator())
+        using (var enumerator = state.GetEnumerator())
         {
             do
             {
-                using (var serializeStream = StreamForChunk(chunkCount, tempPath, FileMode.Create))
+                using var serializeStream = StreamForChunk(chunkCount, tempPath, FileMode.Create);
+                while (serializeStream.Length <= ChunkSize)
                 {
-                    while (serializeStream.Length <= ChunkSize)
+                    didMoveNext = enumerator.MoveNext();
+                    if (!didMoveNext)
                     {
-                        didMoveNext = enumerator.MoveNext();
-                        if (!didMoveNext)
-                        {
-                            break;
-                        }
-
-                        Serializer.SerializeWithLengthPrefix(serializeStream, new ItemWrapper { Item = enumerator.Current }, PrefixStyle.Base128, 0);
+                        break;
                     }
 
-                    chunkCount++;
+                    Serializer.SerializeWithLengthPrefix(serializeStream, new ItemWrapper { Item = enumerator.Current }, PrefixStyle.Base128, 0);
                 }
+
+                chunkCount++;
             }
             while (didMoveNext);
         }
