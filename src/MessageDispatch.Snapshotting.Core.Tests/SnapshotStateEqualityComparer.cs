@@ -4,7 +4,7 @@ using PharmaxoScientific.MessageDispatch.Snapshotting.Core;
 
 namespace MessageDispatch.Snapshotting.Core.Tests;
 
-public class SnapshotStateEqualityComparer<T> :IEqualityComparer<SnapshotState<T>>
+public class SnapshotStateEqualityComparer<T> : IEqualityComparer<SnapshotState<T>>
 {
     public bool Equals(SnapshotState<T>? x, SnapshotState<T>? y) =>
         ReferenceEquals(x, y) || x is not null &&
