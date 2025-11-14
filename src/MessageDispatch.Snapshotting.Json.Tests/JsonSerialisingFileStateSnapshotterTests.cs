@@ -1,10 +1,11 @@
 ﻿// Copyright (c) Pharmaxo. All rights reserved.
 
 using System.IO.Abstractions.TestingHelpers;
+using MessageDispatch.Snapshotting.Core.Tests;
 using MessageDispatch.Snapshotting.Core.Tests.TestDoubles;
 using PharmaxoScientific.MessageDispatch.Snapshotting.Core;
 
-namespace MessageDispatch.Snapshotting.Core.Tests;
+namespace MessageDispatch.Snapshotting.Json.Tests;
 
 public class JsonSerialisingFileStateSnapshotterTests
 {

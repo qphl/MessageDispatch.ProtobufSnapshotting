@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net8.0;net48</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\MessageDispatch.Snapshotting.Core\MessageDispatch.Snapshotting.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Testably.Abstractions.FileSystem.Interface" Version="9.0.0" />
+    </ItemGroup>
+
+</Project>

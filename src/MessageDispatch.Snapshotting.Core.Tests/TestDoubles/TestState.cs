@@ -2,4 +2,4 @@
 
 namespace MessageDispatch.Snapshotting.Core.Tests.TestDoubles;
 
-internal record TestState(string Field1, int Field2);
+public record TestState(string Field1, int Field2);

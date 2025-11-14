@@ -11,13 +11,11 @@
 
     <ItemGroup>
         <PackageReference Include="coverlet.collector" Version="6.0.0"/>
-        <PackageReference Include="KurrentDB.Client" Version="1.0.0" />
-        <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="10.0.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
         <PackageReference Include="NUnit" Version="3.14.0"/>
         <PackageReference Include="NUnit.Analyzers" Version="3.9.0"/>
         <PackageReference Include="NUnit3TestAdapter" Version="4.5.0"/>
-        <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="22.0.16" />
+        <PackageReference Include="TestableIO.System.IO.Abstractions.TestingHelpers" Version="22.0.16" />
     </ItemGroup>
 
     <ItemGroup>
@@ -26,7 +24,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\MessageDispatch.Snapshotting.Protobuf\MessageDispatch.Snapshotting.Protobuf.csproj" />
-      <ProjectReference Include="..\MessageDispatch.Snapshotting.Core\MessageDispatch.Snapshotting.Core.csproj" />
+      <ProjectReference Include="..\MessageDispatch.Snapshotting.Core.Tests\MessageDispatch.Snapshotting.Core.Tests.csproj" />
     </ItemGroup>
 
 </Project>

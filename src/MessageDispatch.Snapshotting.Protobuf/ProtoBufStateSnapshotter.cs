@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using KurrentDB.Client;
 using PharmaxoScientific.MessageDispatch.Snapshotting.Core;
@@ -18,38 +19,44 @@ public class ProtoBufStateSnapshotter : IStateSnapshotter<IEnumerable<object>>
     private const string TempDirectoryName = "tmp/";
     private const int ChunkSize = 52428800;
 
+    private readonly IFileSystem _fileSystem;
     private readonly string _snapshotBasePath;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ProtoBufStateSnapshotter"/> class.
     /// </summary>
+    /// <param name="fileSystem">An abstraction of the file system to facilitate unit testing.</param>
     /// <param name="snapshotBasePath">The base path of where the snapshots will be saved.</param>
     /// <param name="snapshotVersion">The version of the snapshot being saved.</param>
     /// <exception cref="ArgumentException">
     /// Thrown when <paramref name="snapshotBasePath"/> is null, empty, or contains a potentially malicious path (e.g., path traversal).
     /// </exception>
-    public ProtoBufStateSnapshotter(string snapshotBasePath, string snapshotVersion)
+    public ProtoBufStateSnapshotter(
+        IFileSystem fileSystem,
+        string snapshotBasePath,
+        string snapshotVersion)
     {
         ThrowIfMaliciousFilePath(snapshotBasePath);
 
+        _fileSystem = fileSystem;
         _snapshotBasePath = snapshotBasePath;
 
-        if (!Directory.Exists(_snapshotBasePath))
+        if (!_fileSystem.Directory.Exists(_snapshotBasePath))
         {
-            Directory.CreateDirectory(_snapshotBasePath);
+            _fileSystem.Directory.CreateDirectory(_snapshotBasePath);
         }
 
         _snapshotBasePath += $"/{snapshotVersion}/";
 
-        if (!Directory.Exists(_snapshotBasePath))
+        if (!_fileSystem.Directory.Exists(_snapshotBasePath))
         {
-            Directory.CreateDirectory(_snapshotBasePath);
+            _fileSystem.Directory.CreateDirectory(_snapshotBasePath);
         }
 
         // delete any temp directories on startup
-        if (Directory.Exists(_snapshotBasePath + TempDirectoryName))
+        if (_fileSystem.Directory.Exists(_snapshotBasePath + TempDirectoryName))
         {
-            Directory.Delete(_snapshotBasePath + TempDirectoryName, true);
+            _fileSystem.Directory.Delete(_snapshotBasePath + TempDirectoryName, true);
         }
     }
 
@@ -66,7 +73,7 @@ public class ProtoBufStateSnapshotter : IStateSnapshotter<IEnumerable<object>>
             return null;
         }
 
-        return new SnapshotState<IEnumerable<object>>(LoadObjects(), (long)checkpoint);
+        return new SnapshotState<IEnumerable<object>>(LoadObjects().ToList(), (long)checkpoint);
     }
 
     private int? LoadCheckpoint()
@@ -109,21 +116,37 @@ public class ProtoBufStateSnapshotter : IStateSnapshotter<IEnumerable<object>>
         }
     }
 
-    private static FileStream StreamForChunk(int chunkNumber, string basePath, FileMode mode)
+    private Stream StreamForChunk(int chunkNumber, string basePath, FileMode mode)
     {
         var filePath = basePath + chunkNumber.ToString().PadLeft(5, '0') + ".chunk";
 
-        if (mode == FileMode.Open && !File.Exists(filePath))
+        switch (mode)
         {
-            return null;
-        }
+            case FileMode.Open:
+                return !_fileSystem.File.Exists(filePath)
+                    ? null
+                    : _fileSystem.File.Open(filePath,
+                        FileMode.Open,
+                        FileAccess.Read,
+                        FileShare.Read);
+            case FileMode.Create:
+                {
+                    var dir = Path.GetDirectoryName(filePath)!;
+                    if (!_fileSystem.Directory.Exists(dir))
+                    {
+                        _fileSystem.Directory.CreateDirectory(dir);
+                    }
 
-        return new FileStream(filePath, mode);
+                    return _fileSystem.File.Open(filePath, FileMode.Create, FileAccess.Write, FileShare.None);
+                }
+            default:
+                throw new NotSupportedException($"Unsupported mode: {mode}");
+        }
     }
 
     private int GetHighestSnapshotPosition()
     {
-        var directories = Directory.GetDirectories(_snapshotBasePath);
+        var directories = _fileSystem.Directory.GetDirectories(_snapshotBasePath);
         if (!directories.Any())
         {
             return -1;
@@ -135,7 +158,7 @@ public class ProtoBufStateSnapshotter : IStateSnapshotter<IEnumerable<object>>
     private void DoCheckpoint(StreamPosition eventNumber, IEnumerable<object> state)
     {
         var tempPath = _snapshotBasePath + TempDirectoryName;
-        Directory.CreateDirectory(tempPath);
+        _fileSystem.Directory.CreateDirectory(tempPath);
 
         var chunkCount = 0;
         var didMoveNext = false;
@@ -161,7 +184,7 @@ public class ProtoBufStateSnapshotter : IStateSnapshotter<IEnumerable<object>>
             while (didMoveNext);
         }
 
-        Directory.Move(tempPath, _snapshotBasePath + "/" + eventNumber.ToInt64());
+        _fileSystem.Directory.Move(tempPath, _snapshotBasePath + "/" + eventNumber.ToInt64());
     }
 
     /// <summary>
