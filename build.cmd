@@ -12,6 +12,8 @@ dotnet restore .\src\PharmaxoScientific.MessageDispatch.Snapshotting.sln -Packag
 dotnet format .\src\PharmaxoScientific.MessageDispatch.Snapshotting.sln --severity warn --verify-no-changes -v diag
 IF %errorlevel% neq 0 EXIT /B %errorlevel%
 
+dotnet test .\src\PharmaxoScientific.MessageDispatch.Snapshotting.sln --no-build --no-restore
+
 dotnet pack .\src\MessageDispatch.Snapshotting.Protobuf\MessageDispatch.Snapshotting.Protobuf.csproj -o .\dist -p:Version="%VERSION%" -p:PackageVersion="%VERSION%" -p:Tag="%TAG%" -c Release
 dotnet pack .\src\MessageDispatch.Snapshotting.Core\MessageDispatch.Snapshotting.Core.csproj -o .\dist -p:Version="%VERSION%" -p:PackageVersion="%VERSION%" -p:Tag="%TAG%" -c Release
 dotnet pack .\src\MessageDispatch.Snapshotting.Json\MessageDispatch.Snapshotting.Json.csproj -o .\dist -p:Version="%VERSION%" -p:PackageVersion="%VERSION%" -p:Tag="%TAG%" -c Release
