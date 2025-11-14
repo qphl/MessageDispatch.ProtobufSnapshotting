@@ -92,7 +92,6 @@ public class SnapshottingResolvedEventDispatcherTests
         const int eventNumber = 0;
         var resolvedEvent = TestHelpers.BuildResolvedEvent("AnyType", eventNumber);
 
-
         Assert.Multiple(() =>
         {
             Assert.That(() => _dispatcher.Dispatch(resolvedEvent), Throws.Exception);
