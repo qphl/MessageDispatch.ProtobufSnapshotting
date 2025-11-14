@@ -4,6 +4,17 @@
     <RootNamespace>PharmaxoScientific.MessageDispatch.Snapshotting.Core</RootNamespace>
     <TargetFrameworks>net8.0;net48</TargetFrameworks>
     <LangVersion>latest</LangVersion>
+    <Authors>Pharmaxo Scientific</Authors>
+    <Company>Pharmaxo Scientific</Company>
+    <Copyright>Pharmaxo Scientific</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DocumentationFile>bin\Debug\MessageDispatch.Snapshotting.Core.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DocumentationFile>bin\Release\MessageDispatch.Snapshotting.Core.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

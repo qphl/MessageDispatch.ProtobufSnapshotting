@@ -23,8 +23,6 @@ public class SnapshotState<TState>
     /// <param name="state">The current state.</param>
     /// <param name="eventNumber">The event number associated with the current state.</param>
     /// </summary>
-    /// <param name="state"></param>
-    /// <param name="eventNumber"></param>
     public SnapshotState(TState state, long eventNumber)
     {
         State = state;
