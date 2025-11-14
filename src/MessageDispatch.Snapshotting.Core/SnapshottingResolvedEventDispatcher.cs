@@ -39,16 +39,17 @@ public class SnapshottingResolvedEventDispatcher<TState> : IDispatcher<ResolvedE
     /// <inheritdoc />
     public void Dispatch(ResolvedEvent message)
     {
-        if (_snapshotStrategy.ShouldSnapshotForEvent(message))
-        {
-            var state = _stateProvider.GetState();
+        _innerDispatcher.Dispatch(message);
 
-            if (state != null)
-            {
-                _stateSnapshotter.SaveSnapshot(message.OriginalEventNumber.ToInt64(), state);
-            }
+        if (!_snapshotStrategy.ShouldSnapshotForEvent(message))
+        {
+            return;
         }
 
-        _innerDispatcher.Dispatch(message);
+        var state = _stateProvider.GetState();
+        if (state != null)
+        {
+            _stateSnapshotter.SaveSnapshot(message.OriginalEventNumber.ToInt64(), state);
+        }
     }
 }
