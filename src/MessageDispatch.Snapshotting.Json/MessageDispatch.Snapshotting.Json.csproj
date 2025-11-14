@@ -10,7 +10,6 @@
       <Copyright>Pharmaxo Scientific</Copyright>
       <PackageLicense>https://github.com/qphl/MessageDispatch.ProtobufSnapshotting/blob/master/LICENSE</PackageLicense>
       <PackageProjectUrl>https://github.com/qphl/MessageDispatch.ProtobufSnapshotting</PackageProjectUrl>
-      <PackageIconUrl>https://raw.githubusercontent.com/qphl/MessageDispatch.ProtobufSnapshotting/master/logo.png</PackageIconUrl>
       <RepositoryUrl>https://github.com/qphl/MessageDispatch.ProtobufSnapshotting</RepositoryUrl>
       <PackageTags>Message Dispatching, Event Sourcing</PackageTags>
       <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
