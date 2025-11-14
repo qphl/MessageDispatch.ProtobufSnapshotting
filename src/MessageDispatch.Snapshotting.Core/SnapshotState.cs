@@ -1,11 +1,34 @@
 ﻿// Copyright (c) Pharmaxo. All rights reserved.
 
-namespace PharmaxoScientific.MessageDispatch.Snapshotting.Core;
+namespace PharmaxoScientific.MessageDispatch.Snapshotting.Core
+{
+    /// <summary>
+    /// Stores the current state and associated event number.
+    /// </summary>
+    /// <typeparam name="TState">The type of the state.</typeparam>
+    public class SnapshotState<TState>
+    {
+        /// <summary>
+        /// Gets the current state.
+        /// </summary>
+        public TState State { get; }
 
-/// <summary>
-/// Stores the current state and associated event number.
-/// </summary>
-/// <param name="State">The current state.</param>
-/// <param name="EventNumber">The event number associated with the current state.</param>
-/// <typeparam name="TState">The type of the state.</typeparam>
-public record SnapshotState<TState>(TState State, long EventNumber);
+        /// <summary>
+        /// Gets the event number associated with the current state.
+        /// </summary>
+        public long EventNumber { get; }
+
+        /// <summary>
+        /// Initialises a new instance of the <see cref="SnapshotState{TState}"/>.
+        /// <param name="state">The current state.</param>
+        /// <param name="eventNumber">The event number associated with the current state.</param>
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="eventNumber"></param>
+        public SnapshotState(TState state, long eventNumber)
+        {
+            State = state;
+            EventNumber = eventNumber;
+        }
+    }
+}

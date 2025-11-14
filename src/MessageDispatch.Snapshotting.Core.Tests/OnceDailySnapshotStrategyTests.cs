@@ -1,21 +1,15 @@
 ﻿// Copyright (c) Pharmaxo. All rights reserved.
 
-using Microsoft.Extensions.Time.Testing;
 using PharmaxoScientific.MessageDispatch.Snapshotting.Core;
 
 namespace MessageDispatch.Snapshotting.Core.Tests;
 
 public class OnceDailySnapshotStrategyTests
 {
-    private FakeTimeProvider _timeProvider;
     private OnceDailySnapshotStrategy<object> _strategy;
 
     [SetUp]
-    public void Setup()
-    {
-        _timeProvider = new FakeTimeProvider();
-        _strategy = new OnceDailySnapshotStrategy<object>(_timeProvider);
-    }
+    public void Setup() => _strategy = new OnceDailySnapshotStrategy<object>();
 
     [Test]
     public void ShouldSnapshotForEvent_GivenFirstEvent_ReturnsTrue()
@@ -31,10 +25,10 @@ public class OnceDailySnapshotStrategyTests
         var firstEvent = TestHelpers.BuildResolvedEvent("AnyEventType", 0);
         var secondEvent = TestHelpers.BuildResolvedEvent("AnyEventType", 1);
 
-        _timeProvider.SetUtcNow(DateTime.UtcNow);
+        Clock.Initialize(() => DateTime.UtcNow);
         _strategy.ShouldSnapshotForEvent(firstEvent);
 
-        _timeProvider.SetUtcNow(DateTime.UtcNow);
+        Clock.Initialize(() => DateTime.UtcNow);
         Assert.That(_strategy.ShouldSnapshotForEvent(secondEvent), Is.False);
     }
 
@@ -44,10 +38,10 @@ public class OnceDailySnapshotStrategyTests
         var firstEvent = TestHelpers.BuildResolvedEvent("AnyEventType", 0);
         var secondEvent = TestHelpers.BuildResolvedEvent("AnyEventType", 1);
 
-        _timeProvider.SetUtcNow(DateTime.UtcNow);
+        Clock.Initialize(() => DateTime.UtcNow);
         _strategy.ShouldSnapshotForEvent(firstEvent);
 
-        _timeProvider.SetUtcNow(DateTime.UtcNow.AddDays(1));
+        Clock.Initialize(() => DateTime.UtcNow.AddDays(1));
         Assert.That(_strategy.ShouldSnapshotForEvent(secondEvent), Is.True);
     }
 }

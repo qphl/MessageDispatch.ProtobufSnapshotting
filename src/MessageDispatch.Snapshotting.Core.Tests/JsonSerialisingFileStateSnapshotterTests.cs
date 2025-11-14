@@ -1,12 +1,15 @@
 ﻿// Copyright (c) Pharmaxo. All rights reserved.
 
 using System.IO.Abstractions.TestingHelpers;
+using MessageDispatch.Snapshotting.Core.Tests.TestDoubles;
 using PharmaxoScientific.MessageDispatch.Snapshotting.Core;
 
 namespace MessageDispatch.Snapshotting.Core.Tests;
 
 public class JsonSerialisingFileStateSnapshotterTests
 {
+    private static readonly SnapshotStateEqualityComparer<TestState> _snapshotStateEqualityComparer = new();
+
     private const string SnapshotVersion = "1";
     private const string SnapshotBasePath = "BasePath";
 
@@ -53,7 +56,7 @@ public class JsonSerialisingFileStateSnapshotterTests
         _snapshotter = CreateSnapshotter();
         var loadedState = _snapshotter.LoadStateFromSnapshot();
 
-        Assert.That(loadedState, Is.EqualTo(expectedState));
+        Assert.That(loadedState, Is.EqualTo(expectedState).Using(_snapshotStateEqualityComparer));
     }
 
     [Test]
@@ -69,7 +72,7 @@ public class JsonSerialisingFileStateSnapshotterTests
         _snapshotter = CreateSnapshotter();
         var loadedState = _snapshotter.LoadStateFromSnapshot();
 
-        Assert.That(loadedState, Is.EqualTo(expectedState));
+        Assert.That(loadedState, Is.EqualTo(expectedState).Using(_snapshotStateEqualityComparer));
     }
 
     [Test]
@@ -87,7 +90,7 @@ public class JsonSerialisingFileStateSnapshotterTests
         _snapshotter = CreateSnapshotter();
         var loadedState = _snapshotter.LoadStateFromSnapshot();
 
-        Assert.That(loadedState, Is.EqualTo(expectedState));
+        Assert.That(loadedState, Is.EqualTo(expectedState).Using(_snapshotStateEqualityComparer));
     }
 
     [Test]

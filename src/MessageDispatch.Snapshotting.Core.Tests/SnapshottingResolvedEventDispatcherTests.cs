@@ -7,6 +7,8 @@ namespace MessageDispatch.Snapshotting.Core.Tests;
 
 public class SnapshottingResolvedEventDispatcherTests
 {
+    private static readonly SnapshotStateEqualityComparer<TestState> _snapshotStateEqualityComparer = new();
+
     private SnapshottingResolvedEventDispatcher<TestState> _dispatcher;
     private SimpleStrategy _snapshotStrategy;
     private DispatcherSpy _innerDispatcher;
@@ -59,7 +61,7 @@ public class SnapshottingResolvedEventDispatcherTests
         {
             Assert.That(_innerDispatcher.DispatchedEvents, Has.Count.EqualTo(1));
             Assert.That(_innerDispatcher.DispatchedEvents.First(), Is.EqualTo(resolvedEvent));
-            Assert.That(_snapshotter.LoadStateFromSnapshot(), Is.EqualTo(expectedState));
+            Assert.That(_snapshotter.LoadStateFromSnapshot(), Is.EqualTo(expectedState).Using(_snapshotStateEqualityComparer));
         });
     }
 

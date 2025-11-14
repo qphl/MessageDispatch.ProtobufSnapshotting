@@ -8,5 +8,5 @@ internal class SimpleStateProvider : IStateProvider<TestState>
 {
     public TestState? State { get; set; }
 
-    public TestState? GetState() => State;
+    public TestState GetState() => State!;
 }
