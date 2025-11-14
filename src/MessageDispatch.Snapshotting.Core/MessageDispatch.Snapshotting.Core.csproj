@@ -3,6 +3,7 @@
   <PropertyGroup>
     <RootNamespace>PharmaxoScientific.MessageDispatch.Snapshotting.Core</RootNamespace>
     <TargetFrameworks>net8.0;net48</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
