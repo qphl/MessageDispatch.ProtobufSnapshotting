@@ -13,3 +13,5 @@ dotnet format .\src\PharmaxoScientific.MessageDispatch.Snapshotting.sln --severi
 IF %errorlevel% neq 0 EXIT /B %errorlevel%
 
 dotnet pack .\src\MessageDispatch.Snapshotting.Protobuf\MessageDispatch.Snapshotting.Protobuf.csproj -o .\dist -p:Version="%VERSION%" -p:PackageVersion="%VERSION%" -p:Tag="%TAG%" -c Release
+dotnet pack .\src\MessageDispatch.Snapshotting.Core\MessageDispatch.Snapshotting.Core.csproj -o .\dist -p:Version="%VERSION%" -p:PackageVersion="%VERSION%" -p:Tag="%TAG%" -c Release
+dotnet pack .\src\MessageDispatch.Snapshotting.Json\MessageDispatch.Snapshotting.Json.csproj -o .\dist -p:Version="%VERSION%" -p:PackageVersion="%VERSION%" -p:Tag="%TAG%" -c Release
