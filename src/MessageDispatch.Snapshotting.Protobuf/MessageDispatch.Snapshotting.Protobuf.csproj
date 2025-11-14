@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFrameworks>net8.0;net481</TargetFrameworks>
     <LangVersion>latest</LangVersion>
-    <AssemblyName>PharmaxoScientific.MessageDispatch.ProtobufSnapshotting</AssemblyName>
-    <RootNamespace>PharmaxoScientific.MessageDispatch.ProtobufSnapshotting</RootNamespace>
+    <AssemblyName>PharmaxoScientific.MessageDispatch.Snapshotting.Protobuf</AssemblyName>
+    <RootNamespace>PharmaxoScientific.MessageDispatch.Snapshotting.Protobuf</RootNamespace>
     <Authors>Pharmaxo Scientific</Authors>
     <Company>Pharmaxo Scientific</Company>
     <Copyright>Pharmaxo Scientific</Copyright>
@@ -14,7 +14,7 @@
     <RepositoryUrl>https://github.com/qphl/MessageDispatch.ProtobufSnapshotting</RepositoryUrl>
     <PackageTags>Message Dispatching, Event Sourcing</PackageTags>
     <Product>PharmaxoScientific.MessageDispatch.ProtobufSnapshotting</Product>
-    <Description>This package contains a wrapping implementation of IDispatcher which supports writing snapshots of in-memory viewmodel state to disk, serialised with ProtoBuf.</Description>
+    <Description>This package enables serialisation of in-memory viewmodel state with ProtoBuf.</Description>
     <PackageReleaseNotes>https://GitHub.com/qphl/MessageDispatch.ProtobufSnapshotting/releases/tag/$(Tag)</PackageReleaseNotes>
     <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
     <PackageIcon>Logo.png</PackageIcon>

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text.Json;
 using PharmaxoScientific.MessageDispatch.Snapshotting.Core;
 
-namespace MessageDispatch.Snapshotting.Json;
+namespace PharmaxoScientific.MessageDispatch.Snapshotting.Json;
 
 /// <summary>
 /// An implementation of <see cref="ISnapshotStrategy{T}"/> that persists its snapshots to a JSON file.

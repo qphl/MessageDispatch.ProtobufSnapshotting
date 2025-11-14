@@ -9,7 +9,7 @@ using KurrentDB.Client;
 using PharmaxoScientific.MessageDispatch.Snapshotting.Core;
 using ProtoBuf;
 
-namespace PharmaxoScientific.MessageDispatch.ProtobufSnapshotting;
+namespace PharmaxoScientific.MessageDispatch.Snapshotting.Protobuf;
 
 /// <summary>
 /// An implementation of <see cref="ISnapshotStrategy{T}"/> that persists its snapshots to Protobuf files.

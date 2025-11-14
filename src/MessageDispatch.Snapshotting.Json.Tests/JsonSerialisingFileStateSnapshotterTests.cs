@@ -4,6 +4,7 @@ using System.IO.Abstractions.TestingHelpers;
 using MessageDispatch.Snapshotting.Core.Tests;
 using MessageDispatch.Snapshotting.Core.Tests.TestDoubles;
 using PharmaxoScientific.MessageDispatch.Snapshotting.Core;
+using PharmaxoScientific.MessageDispatch.Snapshotting.Json;
 
 namespace MessageDispatch.Snapshotting.Json.Tests;
 

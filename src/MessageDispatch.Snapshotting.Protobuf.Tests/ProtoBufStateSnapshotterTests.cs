@@ -2,8 +2,8 @@
 
 using System.IO.Abstractions.TestingHelpers;
 using MessageDispatch.Snapshotting.Core.Tests;
-using PharmaxoScientific.MessageDispatch.ProtobufSnapshotting;
 using PharmaxoScientific.MessageDispatch.Snapshotting.Core;
+using PharmaxoScientific.MessageDispatch.Snapshotting.Protobuf;
 
 namespace MessageDispatch.Snapshotting.Protobuf.Tests;
 
