@@ -17,6 +17,7 @@ public class JsonSerialisingFileStateSnapshotter<TState> : IStateSnapshotter<TSt
     private readonly IFileSystem _fileSystem;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly string _basePath;
+    private readonly string _tempPath;
 
     /// <summary>
     /// Initialises a new instance of the <see cref="JsonSerialisingFileStateSnapshotter{TState}"/>.
@@ -33,27 +34,40 @@ public class JsonSerialisingFileStateSnapshotter<TState> : IStateSnapshotter<TSt
     {
         _fileSystem = fileSystem;
         _basePath = Path.Combine(snapshotBasePath, snapshotVersion);
+        _tempPath = Path.Combine(snapshotBasePath,  "tmp");
         _jsonOptions = jsonOptions ?? new JsonSerializerOptions { WriteIndented = false };
+
+        // Delete any temp directories on startup
+        if (_fileSystem.Directory.Exists(_tempPath))
+        {
+            _fileSystem.Directory.Delete(_tempPath, true);
+        }
     }
 
     /// <inheritdoc />
     public void SaveSnapshot(long eventNumber, TState state)
     {
-        if (!_fileSystem.Directory.Exists(_basePath))
-        {
-            _fileSystem.Directory.CreateDirectory(_basePath);
-        }
-
         var checkpointFilePath = Path.Combine(_basePath, eventNumber.ToString());
-
         if (_fileSystem.File.Exists(checkpointFilePath))
         {
             return;
         }
 
-        var json = JsonSerializer.Serialize(state, _jsonOptions);
+        if (!_fileSystem.Directory.Exists(_tempPath))
+        {
+            _fileSystem.Directory.CreateDirectory(_tempPath);
+        }
 
-        _fileSystem.File.WriteAllText(checkpointFilePath, json);
+        if (!_fileSystem.Directory.Exists(_basePath))
+        {
+            _fileSystem.Directory.CreateDirectory(_basePath);
+        }
+
+        var json = JsonSerializer.Serialize(state, _jsonOptions);
+        var tempFilePath = Path.Combine(_tempPath, eventNumber.ToString());
+
+        _fileSystem.File.WriteAllText(tempFilePath, json);
+        _fileSystem.Directory.Move(tempFilePath, checkpointFilePath);
     }
 
     /// <inheritdoc />
