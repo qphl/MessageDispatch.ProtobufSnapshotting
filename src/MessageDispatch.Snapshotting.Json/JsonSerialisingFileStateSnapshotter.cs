@@ -34,7 +34,7 @@ public class JsonSerialisingFileStateSnapshotter<TState> : IStateSnapshotter<TSt
     {
         _fileSystem = fileSystem;
         _basePath = Path.Combine(snapshotBasePath, snapshotVersion);
-        _tempPath = Path.Combine(snapshotBasePath,  "tmp");
+        _tempPath = Path.Combine(snapshotBasePath, "tmp");
         _jsonOptions = jsonOptions ?? new JsonSerializerOptions { WriteIndented = false };
 
         // Delete any temp directories on startup
