@@ -14,7 +14,8 @@ namespace PharmaxoScientific.MessageDispatch.Snapshotting.Protobuf;
 /// <summary>
 /// An implementation of <see cref="ISnapshotStrategy{T}"/> that persists its snapshots to Protobuf files.
 /// </summary>
-public class ProtoBufStateSnapshotter : IStateSnapshotter<IEnumerable<object>>
+/// <typeparam name="TState">The type of the state to persist.</typeparam>
+public class ProtoBufStateSnapshotter<TState> : IStateSnapshotter<IEnumerable<TState>>
 {
     private const string TempDirectoryName = "tmp/";
     private const int ChunkSize = 52428800;
@@ -23,7 +24,7 @@ public class ProtoBufStateSnapshotter : IStateSnapshotter<IEnumerable<object>>
     private readonly string _snapshotBasePath;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ProtoBufStateSnapshotter"/> class.
+    /// Initializes a new instance of the <see cref="ProtoBufStateSnapshotter{TState}"/> class.
     /// </summary>
     /// <param name="fileSystem">An abstraction of the file system to facilitate unit testing.</param>
     /// <param name="snapshotBasePath">The base path of where the snapshots will be saved.</param>
@@ -61,11 +62,11 @@ public class ProtoBufStateSnapshotter : IStateSnapshotter<IEnumerable<object>>
     }
 
     /// <inheritdoc />
-    public void SaveSnapshot(long eventNumber, IEnumerable<object> state) =>
+    public void SaveSnapshot(long eventNumber, IEnumerable<TState> state) =>
         DoCheckpoint(StreamPosition.FromInt64(eventNumber), state);
 
     /// <inheritdoc />
-    public SnapshotState<IEnumerable<object>> LoadStateFromSnapshot()
+    public SnapshotState<IEnumerable<TState>> LoadStateFromSnapshot()
     {
         var checkpoint = LoadCheckpoint();
         if (checkpoint is null)
@@ -73,7 +74,7 @@ public class ProtoBufStateSnapshotter : IStateSnapshotter<IEnumerable<object>>
             return null;
         }
 
-        return new SnapshotState<IEnumerable<object>>(LoadObjects().ToList(), (long)checkpoint);
+        return new SnapshotState<IEnumerable<TState>>(LoadObjects().ToList(), (long)checkpoint);
     }
 
     private int? LoadCheckpoint()
@@ -82,7 +83,7 @@ public class ProtoBufStateSnapshotter : IStateSnapshotter<IEnumerable<object>>
         return pos == -1 ? null : pos;
     }
 
-    private IEnumerable<object> LoadObjects()
+    private IEnumerable<TState> LoadObjects()
     {
         var pos = GetHighestSnapshotPosition();
 
@@ -155,7 +156,7 @@ public class ProtoBufStateSnapshotter : IStateSnapshotter<IEnumerable<object>>
         return directories.Select(d => int.Parse(d.Replace(_snapshotBasePath, string.Empty))).Max();
     }
 
-    private void DoCheckpoint(StreamPosition eventNumber, IEnumerable<object> state)
+    private void DoCheckpoint(StreamPosition eventNumber, IEnumerable<TState> state)
     {
         var tempPath = _snapshotBasePath + TempDirectoryName;
         _fileSystem.Directory.CreateDirectory(tempPath);
@@ -176,12 +177,12 @@ public class ProtoBufStateSnapshotter : IStateSnapshotter<IEnumerable<object>>
                         break;
                     }
 
-                    Serializer.SerializeWithLengthPrefix(serializeStream, new ItemWrapper { Item = enumerator.Current }, PrefixStyle.Base128, 0);
+                    Serializer.SerializeWithLengthPrefix(serializeStream, new ItemWrapper { Item = enumerator.Current },
+                        PrefixStyle.Base128, 0);
                 }
 
                 chunkCount++;
-            }
-            while (didMoveNext);
+            } while (didMoveNext);
         }
 
         _fileSystem.Directory.Move(tempPath, _snapshotBasePath + "/" + eventNumber.ToInt64());
@@ -203,7 +204,6 @@ public class ProtoBufStateSnapshotter : IStateSnapshotter<IEnumerable<object>>
     [ProtoContract]
     private class ItemWrapper
     {
-        [ProtoMember(1, DynamicType = true)]
-        public object Item { get; set; }
+        [ProtoMember(1, DynamicType = true)] public TState Item { get; set; }
     }
 }

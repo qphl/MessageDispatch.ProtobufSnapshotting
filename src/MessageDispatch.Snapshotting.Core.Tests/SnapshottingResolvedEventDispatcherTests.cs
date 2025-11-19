@@ -49,7 +49,7 @@ public class SnapshottingResolvedEventDispatcherTests
     [Test]
     public void Dispatch_WhenShouldSnapshot_DispatchesWithSnapshotting()
     {
-        _stateProvider.State = new TestState("Wof", 234);
+        _stateProvider.State = new TestState { Field1 = "Wof", Field2 = 34, };
         _snapshotStrategy.ShouldSnapshot = true;
         const int eventNumber = 0;
         var resolvedEvent = TestHelpers.BuildResolvedEvent("AnyType", eventNumber);
@@ -86,7 +86,7 @@ public class SnapshottingResolvedEventDispatcherTests
     [Test]
     public void Dispatch_WhenShouldSnapshotButDispatchingFails_DoesNotRecordSnapshot()
     {
-        _stateProvider.State = new TestState("Wof", 234);
+        _stateProvider.State = new TestState { Field1 = "Wof", Field2 = 34, };
         _snapshotStrategy.ShouldSnapshot = true;
         _innerThrowingDispatcher.ThrowOnDispatch = true;
         const int eventNumber = 0;

@@ -49,7 +49,7 @@ public class JsonSerialisingFileStateSnapshotterTests
         _mockFileSystem.Directory.CreateDirectory($"{SnapshotBasePath}/{SnapshotVersion}/");
 
         const int eventNumber = 34324;
-        var initialState = new TestState("Wof", 34);
+        var initialState = new TestState { Field1 = "Wof", Field2 = 34, };
 
         var expectedState = new SnapshotState<TestState>(initialState, eventNumber);
 
@@ -65,7 +65,7 @@ public class JsonSerialisingFileStateSnapshotterTests
     public void GivenDirectoryDidNotExistExists_WhenSavedAndReloaded_ReturnsSnapshotState()
     {
         const int eventNumber = 34324;
-        var initialState = new TestState("Wof", 34);
+        var initialState = new TestState { Field1 = "Wof4", Field2 = 3324, };
 
         var expectedState = new SnapshotState<TestState>(initialState, eventNumber);
 
@@ -81,12 +81,12 @@ public class JsonSerialisingFileStateSnapshotterTests
     public void GivenMultipleExistingSnapshots_WhenReloaded_ReturnsLatestSnapshotState()
     {
         const long latestEventNumber = 8978;
-        var latestState = new TestState("TheLatestOne", 99);
+        var latestState = new TestState { Field1 = "Wof", Field2 = 34, };
         var expectedState = new SnapshotState<TestState>(latestState, latestEventNumber);
 
-        _snapshotter.SaveSnapshot(1, new TestState("Wof", 34));
-        _snapshotter.SaveSnapshot(10, new TestState("Tam", 34345));
-        _snapshotter.SaveSnapshot(478, new TestState("Foo", 79878));
+        _snapshotter.SaveSnapshot(1, new TestState { Field1 = "Wof", Field2 = 34, });
+        _snapshotter.SaveSnapshot(10, new TestState { Field1 = "Tam", Field2 = 98794, });
+        _snapshotter.SaveSnapshot(478, new TestState { Field1 = "Wof2", Field2 = 344, });
         _snapshotter.SaveSnapshot(latestEventNumber, latestState);
 
         _snapshotter = CreateSnapshotter();
@@ -102,7 +102,7 @@ public class JsonSerialisingFileStateSnapshotterTests
         const string basePath = $"{SnapshotBasePath}/{SnapshotVersion}/";
         var filePath = $"{basePath}/{eventNumber}";
         var expectedLastWriteTime = DateTime.Now;
-        var state = new TestState("Wof", 34);
+        var state = new TestState { Field1 = "Wof", Field2 = 34, };
 
         _snapshotter.SaveSnapshot(eventNumber, state);
 
