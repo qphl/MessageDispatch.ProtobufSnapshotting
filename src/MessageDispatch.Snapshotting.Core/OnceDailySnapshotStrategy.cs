@@ -17,7 +17,14 @@ public class OnceDailySnapshotStrategy<T> : ISnapshotStrategy<T>
     public bool ShouldSnapshotForEvent(T @event)
     {
         var now = Clock.Now;
-        if (now.Date <= _lastSnapshotTime?.Date)
+
+        if (!_lastSnapshotTime.HasValue)
+        {
+            _lastSnapshotTime = now;
+            return false;
+        }
+
+        if (now.Date <= _lastSnapshotTime.Value.Date)
         {
             return false;
         }

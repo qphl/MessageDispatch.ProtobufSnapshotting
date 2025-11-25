@@ -10,13 +10,13 @@ public class OnceDailySnapshotStrategyTests
 
     [SetUp]
     public void Setup() => _strategy = new OnceDailySnapshotStrategy<object>();
-
+    
     [Test]
-    public void ShouldSnapshotForEvent_GivenFirstEvent_ReturnsTrue()
+    public void ShouldSnapshotForEvent_GivenFirstEvent_ReturnsFalse()
     {
         var resolvedEvent = TestHelpers.BuildResolvedEvent("AnyEventType", 0);
 
-        Assert.That(_strategy.ShouldSnapshotForEvent(resolvedEvent), Is.True);
+        Assert.That(_strategy.ShouldSnapshotForEvent(resolvedEvent), Is.False);
     }
 
     [Test]
