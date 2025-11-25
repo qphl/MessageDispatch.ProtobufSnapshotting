@@ -10,7 +10,7 @@ public class OnceDailySnapshotStrategyTests
 
     [SetUp]
     public void Setup() => _strategy = new OnceDailySnapshotStrategy<object>();
-    
+
     [Test]
     public void ShouldSnapshotForEvent_GivenFirstEvent_ReturnsFalse()
     {
