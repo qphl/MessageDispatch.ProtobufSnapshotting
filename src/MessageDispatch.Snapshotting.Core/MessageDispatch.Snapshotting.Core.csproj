@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>PharmaxoScientific.MessageDispatch.Snapshotting.Core</RootNamespace>
+    <AssemblyName>PharmaxoScientific.MessageDispatch.Snapshotting.Core</AssemblyName>
+    <TargetFrameworks>net8.0;net48</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <Authors>Pharmaxo Scientific</Authors>
+    <Company>Pharmaxo Scientific</Company>
+    <Copyright>Pharmaxo Scientific</Copyright>
+    <PackageLicense>https://github.com/qphl/MessageDispatch.ProtobufSnapshotting/blob/master/LICENSE</PackageLicense>
+    <PackageProjectUrl>https://github.com/qphl/MessageDispatch.ProtobufSnapshotting</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/qphl/MessageDispatch.ProtobufSnapshotting</RepositoryUrl>
+    <PackageTags>Message Dispatching, Event Sourcing</PackageTags>
+    <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
+    <Description>This package contains a wrapping implementation of IDispatcher which supports writing snapshots of in-memory viewmodel state.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DocumentationFile>bin\Debug\MessageDispatch.Snapshotting.Core.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DocumentationFile>bin\Release\MessageDispatch.Snapshotting.Core.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CorshamScience.MessageDispatch.Core" Version="2.0.0" />
+    <PackageReference Include="KurrentDB.Client" Version="1.0.0" />
+    <PackageReference Include="System.IO.Abstractions" Version="22.0.16" />
+  </ItemGroup>
+
+</Project>

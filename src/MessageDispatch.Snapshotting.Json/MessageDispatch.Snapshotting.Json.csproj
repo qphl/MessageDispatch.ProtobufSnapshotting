@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+      <RootNamespace>PharmaxoScientific.MessageDispatch.Snapshotting.Json</RootNamespace>
+      <AssemblyName>PharmaxoScientific.MessageDispatch.Snapshotting.Json</AssemblyName>
+      <TargetFrameworks>net8.0;net48</TargetFrameworks>
+      <LangVersion>latest</LangVersion>
+      <Authors>Pharmaxo Scientific</Authors>
+      <Company>Pharmaxo Scientific</Company>
+      <Copyright>Pharmaxo Scientific</Copyright>
+      <PackageLicense>https://github.com/qphl/MessageDispatch.ProtobufSnapshotting/blob/master/LICENSE</PackageLicense>
+      <PackageProjectUrl>https://github.com/qphl/MessageDispatch.ProtobufSnapshotting</PackageProjectUrl>
+      <RepositoryUrl>https://github.com/qphl/MessageDispatch.ProtobufSnapshotting</RepositoryUrl>
+      <PackageTags>Message Dispatching, Event Sourcing</PackageTags>
+      <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
+      <Description>This package enables serialisation of in-memory viewmodel state as a JSON file.</Description>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DocumentationFile>bin\Debug\MessageDispatch.Snapshotting.Json.xml</DocumentationFile>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DocumentationFile>bin\Release\MessageDispatch.Snapshotting.Json.xml</DocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\MessageDispatch.Snapshotting.Core\MessageDispatch.Snapshotting.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Testably.Abstractions.FileSystem.Interface" Version="9.0.0" />
+    </ItemGroup>
+
+</Project>
