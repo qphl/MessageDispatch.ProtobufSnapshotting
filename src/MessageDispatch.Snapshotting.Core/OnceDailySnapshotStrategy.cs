@@ -9,27 +9,12 @@ namespace PharmaxoScientific.MessageDispatch.Snapshotting.Core;
 /// that returns true if the last written snapshot was on the previous day.
 /// </summary>
 /// <typeparam name="T">The type of the event (unused in this strategy).</typeparam>
-public class OnceDailySnapshotStrategy<T> : ISnapshotStrategy<T>
+public class OnceDailySnapshotStrategy<T> : IntervalSnapshotStrategy<T>
 {
-    private DateTime? _lastSnapshotTime;
-
-    /// <inheritdoc />
-    public bool ShouldSnapshotForEvent(T @event)
+    /// <summary>
+    /// Initialises a new instance of the <see cref="OnceDailySnapshotStrategy{TState}"/>.
+    /// </summary>
+    public OnceDailySnapshotStrategy() : base(TimeSpan.FromDays(1))
     {
-        var now = Clock.Now;
-
-        if (!_lastSnapshotTime.HasValue)
-        {
-            _lastSnapshotTime = now;
-            return false;
-        }
-
-        if (now.Date <= _lastSnapshotTime.Value.Date)
-        {
-            return false;
-        }
-
-        _lastSnapshotTime = now;
-        return true;
     }
 }
