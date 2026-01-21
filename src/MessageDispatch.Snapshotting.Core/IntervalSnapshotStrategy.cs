@@ -40,7 +40,8 @@ public class IntervalSnapshotStrategy<T> : ISnapshotStrategy<T>
             return false;
         }
 
-        if (now - _lastSnapshotTime.Value < _interval)
+        var elapsed = now - _lastSnapshotTime.Value;
+        if (elapsed < _interval)
         {
             return false;
         }
