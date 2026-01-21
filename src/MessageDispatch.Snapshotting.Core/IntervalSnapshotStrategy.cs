@@ -18,7 +18,7 @@ public class IntervalSnapshotStrategy<T> : ISnapshotStrategy<T>
     /// <summary>
     /// Initialises a new instance of the <see cref="IntervalSnapshotStrategy{TState}"/>.
     /// </summary>
-    /// <param name="interval"></param>
+    /// <param name="interval">The interval that snapshots should be recorded on.</param>
     public IntervalSnapshotStrategy(TimeSpan interval)
     {
         if (interval <= TimeSpan.Zero)
