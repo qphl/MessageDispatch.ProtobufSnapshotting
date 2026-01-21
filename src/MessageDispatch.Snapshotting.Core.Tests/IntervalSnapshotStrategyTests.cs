@@ -55,7 +55,7 @@ public class IntervalSnapshotStrategyTests
 
         strategy.ShouldSnapshotForEvent(firstEvent);
 
-        Clock.Initialize(() => now +  timeSpan);
+        Clock.Initialize(() => now + timeSpan);
 
         Assert.That(strategy.ShouldSnapshotForEvent(secondEvent), Is.True);
     }
@@ -73,7 +73,7 @@ public class IntervalSnapshotStrategyTests
 
         strategy.ShouldSnapshotForEvent(firstEvent);
 
-        Clock.Initialize(() => now +  timeSpan + timeSpan);
+        Clock.Initialize(() => now + timeSpan + timeSpan);
 
         Assert.That(strategy.ShouldSnapshotForEvent(secondEvent), Is.True);
     }
